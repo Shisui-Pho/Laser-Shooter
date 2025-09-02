@@ -3,7 +3,7 @@ class CameraService{
     private stream:MediaStream | null=null;
 
     //Method to start the camera
-    async StartCamera(videoElement:HTMLVideoElement)
+    async startCamera(videoElement:HTMLVideoElement)
         :Promise<void>{
         
         try{
