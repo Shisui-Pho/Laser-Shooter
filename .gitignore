@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/front-end/node_modules
 /.pnp
 .pnp.js
 
@@ -18,15 +19,27 @@
 # misc
 .DS_Store
 *.pem
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# logs
+logs
+*.log
 
 # local env files
 .env*.local
 .env
+*.local
 
 # vercel
 .vercel
@@ -35,5 +48,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#caching
+# caching
 */__pycache__
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
