@@ -19,6 +19,7 @@ class Team(BaseModel):
     misses: int
     shots: int
     players: list[Player] = []
+    max_players: int
 
 
 #Models for WebSocket messages
@@ -36,8 +37,9 @@ class GameOverPayload(BaseModel):
 class MissedShotPayload(BaseModel):
     shooter_id: int
 
-Payload = Union[ShotHitPayload, GameOverPayload, MissedShotPayload]
+
+Payload = Union[ShotHitPayload, GameOverPayload, MissedShotPayload, None]
 
 class Message(BaseModel):
-    type: Literal['hit', 'shot', 'game_over', 'missed_shot']
+    type: Literal['hit', 'shot', 'game_over', 'missed_shot', 'start_game']
     payload: Payload
