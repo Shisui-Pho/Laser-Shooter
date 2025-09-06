@@ -34,8 +34,8 @@ def create_teams(lobbies: dict[str, dict[str, Team]] = {}):
     colors, shape = pick_color_shape_combo()
     teamA_id, teamB_id = generate_team_names(colors, shape)
 
-    teamA = Team(id=teamA_id, score= 0, color=colors[0], shape=shape, hits=0, misses=0, shots=0, players=[])
-    teamB = Team(id=teamB_id, score= 0, color=colors[1], shape=shape, hits=0, misses=0, shots=0, players=[])
+    teamA = Team(id=teamA_id, score= 0, color=colors[0], shape=shape, hits=0, misses=0, shots=0, players=[], max_players=0)
+    teamB = Team(id=teamB_id, score= 0, color=colors[1], shape=shape, hits=0, misses=0, shots=0, players=[], max_players=0)
 
     #TODO: validation of unique color/shape
     _ = lobbies
