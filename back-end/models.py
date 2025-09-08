@@ -47,9 +47,11 @@ class GameOverPayload(BaseModel):
 class MissedShotPayload(BaseModel):
     shooter_id: int
 
+class TimerReportPayload(BaseModel):
+    time_remaining: int
 
-Payload = Union[ShotHitPayload, GameOverPayload, MissedShotPayload, None]
+Payload = Union[ShotHitPayload, GameOverPayload, MissedShotPayload, TimerReportPayload, None]
 
 class Message(BaseModel):
-    type: Literal['hit', 'shot', 'game_over', 'missed_shot', 'start_game']
+    type: Literal['hit', 'shot', 'game_over', 'missed_shot', 'start_game','timer_report']
     payload: Payload
