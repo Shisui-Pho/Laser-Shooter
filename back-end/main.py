@@ -1,10 +1,29 @@
-from fastapi import FastAPI, HTTPException, Request, WebSocket
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+import asyncio
 from ComputerVisionModel import ComputerVisionModel
 import services.service as sv
-from models import Player,Team
+from models import MissedShotPayload, Player,Team, ShotHitPayload, GameOverPayload, Message
 from ConnectionManager import ConnectionManager
-app = FastAPI()
+from LobbyManager import LobbyManager
+
+
+#models and managers definitions
+vision_model = ComputerVisionModel()
+c_manager = ConnectionManager()
+l_manager = LobbyManager(c_manager)
+
+#ounter variable for player id's
+id_counter : int = 0
+
+#create a background task for the game timer
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(l_manager.game_timer_loop())
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 #CORS configuration: allow requests from any origin (temp for development)
 app.add_middleware(
@@ -14,16 +33,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-vision_model = ComputerVisionModel()
-c_manager = ConnectionManager()
-
-# lobbydetails[lobby_code][team_name]] = Team object
-#-I put team name as key to make it easier to look up teams when sending messages
-#TODO: Make use of a class to manage lobbies instead of a dict
-lobbies: dict[str, dict[str, Team]] = {}
-id_counter : int = 0
-
 
 @app.get("/")
 async def root():
@@ -36,24 +45,13 @@ async def create_lobby(max_players: int):
     if max_players % 2 != 0 or max_players < 2:
         raise HTTPException(status_code=400, detail="max_players must be an even number greater than or equal to 2.")
     
-    #create a new lobby code
-    lobby_code = sv.generate_lobby_code(list(lobbies.keys()))
-
-    #create two teams with random color/shape combinations
-    teamA, teamB = sv.create_teams(lobbies)
-    teamA.max_players = max_players // 2
-    teamB.max_players = max_players // 2
-
-    lobbies[lobby_code] = {teamA.id : teamA, teamB.id : teamB}
-    
-    #Colors are different for each team, but shape is the same
+    #create the teams and lobby simultaniously
+    lobby_code, teamA, teamB = l_manager.create_lobby(max_players)
     colors = [teamA.color, teamB.color]
-    shape = teamA.shape
-
     return {
         "lobby_code": lobby_code,
         "colors": colors,
-        "shape": shape, 
+        "shape": teamA.shape, #the shapes are the same for both teams 
         "teams": [teamA.id, teamB.id]
         }
 
@@ -61,7 +59,7 @@ async def create_lobby(max_players: int):
 @app.post("/JoinLobby/{lobby_code}/{username}")
 async def join_lobby(lobby_code: str, username: str):
     global id_counter
-    if not lobbies.get(lobby_code):
+    if not l_manager.lobby_code_exists(lobby_code):
         raise HTTPException(status_code=404, detail="Lobby not found.")
     
     player = Player(id=id_counter, name=username, team_id="", hits=0)
@@ -73,37 +71,37 @@ async def join_lobby(lobby_code: str, username: str):
 
 @app.get("/GetLobbyDetails/{lobby_code}")
 async def get_lobby_details(lobby_code: str):
-    if not lobbies.get(lobby_code):
+    if not l_manager.lobby_code_exists(lobby_code):
         raise HTTPException(status_code=404, detail="Lobby not found.")
-    
-    return {"teams": list(lobbies[lobby_code].values())}
+    lobby = l_manager.get_lobby(lobby_code)
+    print('\n\n\n\n\n\n\n',lobby,'\n\n\n\n\n\n\n')
+    return {"teams": {} if not lobby else lobby}
 
     
 @app.post("/LeaveTeam/{lobby_code}")
 async def leave_team(lobby_code: str, player: Player):
-    if not lobbies.get(lobby_code):
+    if not l_manager.lobby_code_exists(lobby_code):
         raise HTTPException(status_code=404, detail="Lobby not found.")
     
-    if not lobbies[lobby_code].get(player.team_id):
+    team = l_manager.get_team_from_lobby(lobby_code, player.team_id)
+    if not team:
         raise HTTPException(status_code=404, detail="Team not found in this lobby.")
 
-    if player not in lobbies[lobby_code][player.team_id].players:
+    if player not in team.players:
         raise HTTPException(status_code=404, detail="Player not found in this team.")
     
     #remove th eplayer
-    lobbies[lobby_code][player.team_id].players.remove(player)
+    team.players.remove(player)
     return {"message": f"Left {player.team_id} in lobby {lobby_code}"}
 
 
 def assign_team(lobby_code: str, player:Player):
-    if not lobbies.get(lobby_code):
+    if not l_manager.lobby_code_exists(lobby_code):
         raise HTTPException(status_code=404, detail="Lobby not found.")
-
-    teamA, teamB = list(lobbies[lobby_code].values())
-    #check if the max players limit has been reached
-    if len(teamA.players) >= teamA.max_players and len(teamB.players) >= teamB.max_players:
-        raise NotImplementedError() #TODO: Send message to start game if both teams are full
     
+    #everytime a player is added to a team, they will be connected to 
+    # the websockets which will check if the maximum player count has been reached yet
+    teamA, teamB = l_manager.get_teams_in_lobby(lobby_code) 
     if len(teamA.players) <= len(teamB.players):
         player.team_id = teamA.id
         teamA.players.append(player)
@@ -112,7 +110,3 @@ def assign_team(lobby_code: str, player:Player):
         teamB.players.append(player)
 
 
-#Socket endpoint to handle image processing and broadcasting messages
-#@app.websocket("/ws/{lobby_code}")
-#async def websocket_endpoint():
-#    pass
