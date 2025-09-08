@@ -9,6 +9,16 @@ class Player(BaseModel):
     team_id: str #Auto-generated when lobby is created
     hits: int
 
+    #Define equality based on the player's id for use in list operations
+    def __eq__ (self, other):
+        if isinstance(other, Player):
+            return self.id == other.id
+        return False
+    
+    #Calculate the hash based on the player's id for use in dict keys
+    def __hash__ (self):
+        return hash(self.id)
+
 #-This will be used for spectators to see team scores and player stats
 class Team(BaseModel):
     id: str
