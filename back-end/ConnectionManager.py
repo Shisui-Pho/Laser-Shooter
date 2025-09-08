@@ -50,3 +50,5 @@ class ConnectionManager:
                 for connection in self.active_connections[lobby_code][team]:
                     await connection.send_json(message.model_dump_json())
 
+    async def send_personal_message(self, message: Message, websocket: WebSocket):
+        await websocket.send_json(message.model_dump_json())
