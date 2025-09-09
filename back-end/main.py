@@ -1,10 +1,12 @@
+from annotated_types import T
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
+from sympy import N
 from ComputerVisionModel import ComputerVisionModel
 import services.service as sv
-from models import MissedShotPayload, Player,Team, ShotHitPayload, GameOverPayload, Message
+from models import MissedShotPayload, Player,Team, ShotHitPayload, JoinedTeamPayload, Message
 from ConnectionManager import ConnectionManager
 from LobbyManager import LobbyManager
 
@@ -14,8 +16,8 @@ vision_model = ComputerVisionModel()
 c_manager = ConnectionManager()
 l_manager = LobbyManager(c_manager)
 
-#ounter variable for player id's
-id_counter : int = 0
+#counter variable for player id's
+id_counter : int = 1
 
 #create a background task for the game timer
 @asynccontextmanager
@@ -37,7 +39,6 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {"message": "Phiwo and Galane were here!"}
-
 
 #Get methods for api endpoints
 @app.post("/CreateLobby/{max_players}")
@@ -74,7 +75,6 @@ async def get_lobby_details(lobby_code: str):
     if not l_manager.lobby_code_exists(lobby_code):
         raise HTTPException(status_code=404, detail="Lobby not found.")
     lobby = l_manager.get_lobby(lobby_code)
-    print('\n\n\n\n\n\n\n',lobby,'\n\n\n\n\n\n\n')
     return {"teams": {} if not lobby else lobby}
 
     
@@ -109,4 +109,99 @@ def assign_team(lobby_code: str, player:Player):
         player.team_id = teamB.id
         teamB.players.append(player)
 
+#Socket endpoint to handle image processing and broadcasting messages
+@app.websocket("/ws/{lobby_code}/{team_name}")
+async def websocket_endpoint(websocket: WebSocket, lobby_code: str, team_name:str):
+    #You can only connect if the lobby and team exist
+    if not l_manager.lobby_code_exists(lobby_code):
+        await websocket.close(code=1000)
+        return
+    team = l_manager.get_team_from_lobby(lobby_code, team_name)
+    if not team:
+        await websocket.close(code=1000)
+        return
+    #No one can join when a lobby is active
+    if l_manager.is_lobby_active(lobby_code):
+        await websocket.close(code=100)
+        return
 
+    #connect to the websocket
+    await c_manager.connect(lobby_code,team_name, websocket)
+
+    #Broadcast successful joined message to lobby
+    joined_payload = JoinedTeamPayload(user_name='', team_name=team_name, 
+                                      members_remaining=team.max_players - len(team.players), max_members=team.max_players)
+    message = Message(type='join', payload=joined_payload)
+    await c_manager.send_message_to_Lobby(lobby_code, message)
+
+    #Check if the lobby is full yet
+    if l_manager.are_teams_full(lobby_code):
+        #send a start game signal
+        message = Message(type="start_game", payload=None)
+        await c_manager.send_message_to_Lobby(lobby_code=lobby_code, message=message)
+        await l_manager.start_lobby_game(lobby_code)
+    try:
+        while True:
+           #TODO: Recieve bytes instead
+           data = await websocket.receive_json()
+           #decode the json data
+           image_data, player, color_range = sv.decode_json(data)
+           missed_payload = MissedShotPayload(shooter_id=player.id)
+           message = Message(type="missed_shot", payload=missed_payload)
+           if not color_range:
+               #broadcast a missed shot message
+               await c_manager.send_personal_message(message, websocket)
+               continue
+           #detect the shape in the image
+           detected_shape = vision_model.detect_shape(image_data, color_range)
+           if not detected_shape or len(detected_shape) != 1:
+                #broadcast a missed shot message
+                await c_manager.send_personal_message(message, websocket)
+                continue
+           is_valid, opponent_team = is_valid_hit(detected_shape[0], team, lobby_code)
+           if not is_valid or not opponent_team:
+                #broadcast a missed shot message
+                await c_manager.send_personal_message(message, websocket)
+                continue
+           
+           #handle valid shot
+           await handle_valid_hit(lobby_code, team, opponent_team, player)
+           #Game over is handled by the loop defined h=in the lobby manager
+           
+
+    except WebSocketDisconnect as e:
+        c_manager.disconnect(lobby_code,team_name, websocket)
+        try:
+            await websocket.close()
+        except:
+            pass
+
+async def handle_valid_hit(lobby_code:str, team_shooter: Team, team_shot : Team, player_shooter: Player):
+    #Record a hit
+    team_shooter.hits += 1
+    team_shooter.score += 15
+    player_shooter.hits += 1
+    hit_payload = ShotHitPayload(team_score=team_shooter.score, team_name=team_shooter.id, player_id=player_shooter.id)
+    message = Message(type="hit", payload=hit_payload)
+    
+    #braodcast a hit message to all players in the shooter team
+    await c_manager.send_message_to_team(lobby_code,team_shooter.id,message)
+
+    #Record a short
+    team_shot.shots += 1
+    shot_payload = ShotHitPayload(team_score=team_shot.score,team_name=team_shot.id, player_id=player_shooter.id)
+    message = Message(type="shot", payload=shot_payload)
+    
+    #broadcast a shot message to all players in the opposing team
+    await c_manager.send_message_to_team(lobby_code,team_shot.id,message)
+
+def is_valid_hit(detected_shape:str, team:Team, lobby_code:str) -> tuple[bool,Team | None]:    
+
+    teamA, teamB = l_manager.get_teams_in_lobby(lobby_code)
+    
+    if not teamA or teamB:
+        raise HTTPException(status_code=500, detail="Opposing team not found.")
+    
+    if detected_shape == teamA.shape:
+        return True, teamA if teamA.id != team.id else teamB
+    return False, None
