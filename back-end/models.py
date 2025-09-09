@@ -48,10 +48,16 @@ class MissedShotPayload(BaseModel):
     shooter_id: int
 
 class TimerReportPayload(BaseModel):
-    time_remaining: int
+    time_remaining: float
+#This is to be broadcasted everytime a new user connects to the websocket
+class JoinedTeamPayload(BaseModel):
+    user_name: str #User who just joined
+    team_name: str #team they have been joined to
+    members_remaining: int
+    max_members: int
 
-Payload = Union[ShotHitPayload, GameOverPayload, MissedShotPayload, TimerReportPayload, None]
+Payload = Union[ShotHitPayload, GameOverPayload, MissedShotPayload, TimerReportPayload, JoinedTeamPayload, None]
 
 class Message(BaseModel):
-    type: Literal['hit', 'shot', 'game_over', 'missed_shot', 'start_game','timer_report']
+    type: Literal['hit', 'shot', 'game_over', 'missed_shot', 'start_game','timer_report','join']
     payload: Payload
