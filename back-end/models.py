@@ -9,6 +9,16 @@ class Player(BaseModel):
     team_id: str #Auto-generated when lobby is created
     hits: int
 
+    #Define equality based on the player's id for use in list operations
+    def __eq__ (self, other):
+        if isinstance(other, Player):
+            return self.id == other.id
+        return False
+    
+    #Calculate the hash based on the player's id for use in dict keys
+    def __hash__ (self):
+        return hash(self.id)
+
 #-This will be used for spectators to see team scores and player stats
 class Team(BaseModel):
     id: str
@@ -37,9 +47,17 @@ class GameOverPayload(BaseModel):
 class MissedShotPayload(BaseModel):
     shooter_id: int
 
+class TimerReportPayload(BaseModel):
+    time_remaining: float
+#This is to be broadcasted everytime a new user connects to the websocket
+class JoinedTeamPayload(BaseModel):
+    user_name: str #User who just joined
+    team_name: str #team they have been joined to
+    members_remaining: int
+    max_members: int
 
-Payload = Union[ShotHitPayload, GameOverPayload, MissedShotPayload, None]
+Payload = Union[ShotHitPayload, GameOverPayload, MissedShotPayload, TimerReportPayload, JoinedTeamPayload, None]
 
 class Message(BaseModel):
-    type: Literal['hit', 'shot', 'game_over', 'missed_shot', 'start_game']
+    type: Literal['hit', 'shot', 'game_over', 'missed_shot', 'start_game','timer_report','join']
     payload: Payload

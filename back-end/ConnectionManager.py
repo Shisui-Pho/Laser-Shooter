@@ -50,3 +50,14 @@ class ConnectionManager:
                 for connection in self.active_connections[lobby_code][team]:
                     await connection.send_json(message.model_dump_json())
 
+    async def send_personal_message(self, message: Message, websocket: WebSocket):
+        await websocket.send_json(message.model_dump_json())
+    
+    async def disconnect_lobby(self, lobby_code:str):
+        lobby = self.active_connections.get(lobby_code)
+        if not lobby:
+            return
+        #disconnect everyone on the lobby
+        for team_id, team_connections in lobby.items():
+            for connection in team_connections:
+                await connection.close()

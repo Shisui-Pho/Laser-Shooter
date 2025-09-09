@@ -1,5 +1,5 @@
 import random
-from models import Team
+from models import Player, Team
 colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
 shapes = ['circle', 'square', 'triangle', 'rectangle']
 color_ranges = {
@@ -40,3 +40,14 @@ def create_teams(lobbies: dict[str, dict[str, Team]] = {}):
     #TODO: validation of unique color/shape
     _ = lobbies
     return teamA, teamB
+
+def decode_json(data):
+    #The json data should contain the following keys:
+    #- image: base64 encoded image string
+    #- player: a Player object in dict format
+    #- color: the color that is being seeing by the player
+    image_data = data.get("image")
+    player = Player(**data.get("player"))
+    color = data.get("color")
+    color_range = color_ranges.get(color)
+    return image_data, player, color_range

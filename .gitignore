@@ -50,8 +50,12 @@ next-env.d.ts
 
 # caching
 */__pycache__
+/back-end/*/__pycache__
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+#testing
+back-end/index.html
