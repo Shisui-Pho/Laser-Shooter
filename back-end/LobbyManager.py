@@ -28,6 +28,8 @@ class LobbyManager:
     async def start_lobby_game(self,lobby_code:str):
         if not self.lobbies.get(lobby_code):
             return #lobby was not found
+        if lobby_code in self.active_lobbies:
+            return
         #broadcast message before starting the game to avoid timer from ....
         message = Message(type="start_game",payload= None)
         await self.c_manager.send_message_to_Lobby(lobby_code,message)
@@ -37,7 +39,7 @@ class LobbyManager:
     async def game_timer_loop(self):
         while True:
             now = time.time()
-            for lobby_code, lobby_det in list(self.active_lobbies):
+            for lobby_code, lobby_det in self.active_lobbies.items():
                 elapsed = now - lobby_det["start_time"]
                 remaining = lobby_det["duration"] - elapsed
 
@@ -89,3 +91,5 @@ class LobbyManager:
         teams = list(lobby.values())
         teamA,teamB = teams[0],teams[1]
         return teamA, teamB
+    def is_lobby_active(self, lobby_code: str)-> bool:
+        return lobby_code in self.active_lobbies
