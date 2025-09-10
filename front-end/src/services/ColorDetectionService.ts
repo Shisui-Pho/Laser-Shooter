@@ -25,7 +25,8 @@ class ColorDetectionService{
             //Extract image data for the small area
             const imageData=ctx.getImageData(x,y,size,size);
 
-            //Initialize rgb variables and assign them to every 4 adjacent pixels
+            //Initialize rgb variables and assign them to the pixel after every 4 pixels
+            //We skip the third pixel(pixel[i+3]) as it is the alpha pixel
             let r=0,g=0,b=0;
             const pixels=imageData.data;
             for(let i=0;i<pixels.length;i+=4){

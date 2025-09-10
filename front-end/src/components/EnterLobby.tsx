@@ -11,7 +11,7 @@ const EnterLobby: React.FC = () => {
   const [code, setCode] = useState("");
   
   //State for maximum players input field
-  const [maxPlayers, setMaxPlayers] = useState<number>(4);//Default is 4
+  const [maxPlayers, setMaxPlayers] = useState<number>(2);//Default is 2
 
   //Method to join existing lobby
   const handleJoin = async () => {
