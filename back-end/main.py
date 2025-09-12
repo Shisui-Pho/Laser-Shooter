@@ -1,9 +1,7 @@
-from annotated_types import T
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
-from sympy import N
 from ComputerVisionModel import ComputerVisionModel
 import services.service as sv
 from models import MissedShotPayload, Player,Team, ShotHitPayload, JoinedTeamPayload, Message
@@ -199,7 +197,7 @@ def is_valid_hit(detected_shape:str, team:Team, lobby_code:str) -> tuple[bool,Te
 
     teamA, teamB = l_manager.get_teams_in_lobby(lobby_code)
     
-    if not teamA or teamB:
+    if not teamA or not teamB:
         raise HTTPException(status_code=500, detail="Opposing team not found.")
     
     if detected_shape == teamA.shape:
