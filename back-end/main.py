@@ -196,10 +196,9 @@ async def handle_valid_hit(lobby_code:str, team_shooter: Team, team_shot : Team,
     await c_manager.send_message_to_team(lobby_code,team_shot.id,message)
 
 def is_valid_hit(detected_shape:str, team:Team, lobby_code:str) -> tuple[bool,Team | None]:    
-
     teamA, teamB = l_manager.get_teams_in_lobby(lobby_code)
     
-    if not teamA or teamB:
+    if not teamA or not teamB:
         raise HTTPException(status_code=500, detail="Opposing team not found.")
     
     if detected_shape == teamA.shape:
