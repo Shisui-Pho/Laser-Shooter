@@ -31,8 +31,8 @@ class LobbyManager:
         if lobby_code in self.active_lobbies:
             return
         #broadcast message before starting the game to avoid timer from ....
-        message = Message(type="start_game",payload= None)
-        await self.c_manager.send_message_to_Lobby(lobby_code,message)
+        #message = Message(type="start_game",payload= None)
+        #await self.c_manager.send_message_to_Lobby(lobby_code,message)
         #start the game
         self.active_lobbies[lobby_code] = {"start_time": time.time() , "duration":60}
     
