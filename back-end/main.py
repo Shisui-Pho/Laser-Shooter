@@ -199,7 +199,7 @@ def is_valid_hit(detected_shape:str, team:Team, lobby_code:str) -> tuple[bool,Te
 
     teamA, teamB = l_manager.get_teams_in_lobby(lobby_code)
     
-    if not teamA or teamB:
+    if not teamA or not teamB:
         raise HTTPException(status_code=500, detail="Opposing team not found.")
     
     if detected_shape == teamA.shape:

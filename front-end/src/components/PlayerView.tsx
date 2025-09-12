@@ -133,7 +133,7 @@ function PlayerView() {
         setStatus("Hit!");
         break;
       case "shot":
-        setStatus("Shot fired");
+        setStatus("Got hit");
         break;
       case "missed_shot":
         setStatus("Missed");
@@ -145,7 +145,7 @@ function PlayerView() {
         break;
       case "game_over":
         if (msg.payload?.winning_team_name) {
-          setStatus(`Game Over: ${msg.payload.winning_team_name}`);
+          setStatus(`Game Over!\nWinner: ${msg.payload.winning_team_name}`);
         }
         break;
       case "start_game":
