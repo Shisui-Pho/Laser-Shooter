@@ -15,8 +15,8 @@ const EnterCallName: React.FC = () => {
     e.preventDefault(); // prevent page refresh
 
     //Save the new user object into our global context
-    //We use name as a placeholder for both id and callName for now until we get them from the backend
-    setUser({ id: name, callName: name, role });
+    //Use a placeholder for both id and callName for now until we get them from the backend
+    setUser({ id: -1, callName: name, role });
 
     console.log("User created:", name, role);
   };
