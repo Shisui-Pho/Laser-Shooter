@@ -26,15 +26,30 @@ class ComputerVisionModel:
 
         #Get all the bounding lines of the colors detected
         contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        shapes = []
+        shapes: list[tuple[str,float]] = []
         for cnt in contours:
             #Shape must be within the minimum allowed area, otherwise we ignore
-            if cv2.contourArea(cnt) > self.min_area:
+            shape_area = cv2.contourArea(cnt)
+            if shape_area > self.min_area:
                 shape_type = self._determine_shape_type(cnt)
                 if shape_type in self.shapes: 
-                    shapes.append(shape_type)
-        return shapes
+                    shapes.append((shape_type, shape_area))
+        
+        #return the shapes with the largest area(incase they are equally large)
+        return self._detemine_largest_shapes(shapes)
     
+    @staticmethod
+    def _detemine_largest_shapes(shapes: list[tuple[str,float]]) -> list:
+        if not shapes:
+            return []
+        
+        #determine the max area
+        max_area = max(area for _, area in shapes)
+        #find all shapes with the same largest area
+        largest_shapes = [shape for shape, area in shapes if area == max_area]
+        
+        return largest_shapes
+
     @staticmethod 
     def _determine_shape_type(contor_map) -> str:
         #estimate the number of vertices from the contor map
@@ -68,7 +83,6 @@ class ComputerVisionModel:
 
         return ''
     
-
     @staticmethod
     def _decode_image(image_base64):
         try:
