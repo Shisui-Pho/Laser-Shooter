@@ -1,9 +1,7 @@
-from annotated_types import T
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
-from sympy import N
 from ComputerVisionModel import ComputerVisionModel
 import services.service as sv
 from models import MissedShotPayload, Player,Team, ShotHitPayload, JoinedTeamPayload, Message
