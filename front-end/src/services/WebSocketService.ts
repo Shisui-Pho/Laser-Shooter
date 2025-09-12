@@ -56,20 +56,31 @@ class WebSocketService {
   }
 
 
-  //Method to send a shot
-  sendShot(image: string, player: User, color: string) {
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
+ // Method to send a shot
+sendShot(image: string, player: User, color: string) {
+  if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
 
-    this.socket.send(
-      JSON.stringify({
-        image,
-        player,
-        color,
-      })
-    );
+  const shotData = {
+    image: image,
+    player: {
+      id: player.id, 
+      name: player.callName,
+      team_id: player.teamId,
+      hits: player.hits || 0
+    },
+    color: color
+  };
+
+  console.log("Sending shot:", shotData);
+  
+  try {
+    this.socket.send(JSON.stringify(shotData));
+  } catch (error) {
+    console.error("Error sending shot:", error);
   }
+}
 
-  //Close the websocket
+  //Close the websocket connection
   disconnect() {
     if (this.socket) {
       this.socket.close();
