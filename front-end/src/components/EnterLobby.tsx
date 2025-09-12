@@ -7,45 +7,54 @@ const EnterLobby: React.FC = () => {
   //Access game context for lobby and user information
   const { user, setUser, lobby, setLobby } = useGame();
   
-  //State for lobby code input field
+  //States
   const [code, setCode] = useState("");
-  
-  //State for maximum players input field
   const [maxPlayers, setMaxPlayers] = useState<number>(2);//Default is 2
 
   //Method to join existing lobby
   const handleJoin = async () => {
-    //Return if the user doesn't exist or lobby code is not provided
+    //Return if user or lobby code is missing
     if (!user || !code) return;
 
-    //Join Lobby(only players can join lobby)
+    //Ensure that only players can join lobbies
     if (user.role === "player") {
-      //Call service to join lobby
+      //Request to join the lobby via the lobby service
       const response = await lobbyService.joinLobby(code, user.callName);
-      
-      //Update user context with team assignment
+
+      //Update user data with backend information
       if (response && response.user) {
         setUser({
           ...user,
+          id: response.user.id,
           teamId: response.user.team_id,
           hits: response.user.hits,
         });
+
+        //Fetch full lobby details after joining
+        const lobbyDetails = await lobbyService.getLobbyDetails(code);
+        if (lobbyDetails) {
+          //Update the global lobby state with fetched details
+          setLobby({
+            code,
+            users: lobbyDetails.users || [],
+            colors: lobbyDetails.colors || [],
+            shape: lobbyDetails.shape || "",
+            teams: lobbyDetails.teams || [],
+          });
+        }
       }
     }
-
-    //Update global lobby state with the joined lobby code
-    setLobby({ ...lobby!, code });
   };
 
   // Method for creating a new lobby
   const handleCreate = async () => {
-
-    //Check if the max players is even
+    //Ensure that the max players is even
     if(maxPlayers%2!=0) return;
+
     //Only players can create lobbies(spectators cannot)
     if (!user || user.role !== "player") return;
 
-    //Call the service to create a new lobby 
+    //Request the lobby service to create a new lobby 
     const createResponse = await lobbyService.createLobby(maxPlayers);
     
     if (createResponse) {
@@ -67,10 +76,11 @@ const EnterLobby: React.FC = () => {
         user.callName
       );
 
-      //Update user context with team assignment from the new lobby
+      //Update user data with backend information
       if (joinResponse && joinResponse.user) {
         setUser({
           ...user,
+          id: joinResponse.user.id,        
           teamId: joinResponse.user.team_id,
           hits: joinResponse.user.hits,
         });
@@ -84,7 +94,6 @@ const EnterLobby: React.FC = () => {
       <h2>
         Welcome {user?.callName} ({user?.role})
       </h2>
-      
 
       {/*Field for entering an existing lobby code*/}
       <input
@@ -102,8 +111,8 @@ const EnterLobby: React.FC = () => {
           {/*Input for specifying maximum players in the new lobby */}
           <input
             type="number"
-            min={2}//Minimum 2 players (teams need at least 1 player each)
-            step={2}//Even numbers only (to maintain balanced teams)
+            min={2}//Minimum 2 players(teams need at least 1 player each)
+            step={2}//Even numbers only(to maintain balanced teams)
             value={maxPlayers}
             onChange={(e) => setMaxPlayers(Number(e.target.value))}
             placeholder="Max Players (even number)"
