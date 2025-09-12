@@ -46,7 +46,7 @@ const LobbyDisplay: React.FC = () => {
       <h3>Lobby Teams</h3>
       
       {/*Map through each team in the lobby*/}
-      {lobbyDetails.teams.map((team: any) => (
+      {Object.values(lobbyDetails.teams).map((team: any) => (
         <div key={team.id} style={{ marginBottom: "20px" }}>
           {/* Display team header with ID, color and shape */}
           <h4>
