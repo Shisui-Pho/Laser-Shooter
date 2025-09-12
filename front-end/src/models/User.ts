@@ -1,19 +1,32 @@
 export type Role = "player" | "spectator";
 
-// Frontend User model (mapped from backend Player)
+//User model
 export interface User {
-  id: string;          // Backend generates numeric ID
-  callName: string;    // Local alias for backend "name"
-  role: Role;          // Player or spectator
-  teamId?: string;     // Backend assigns team_id after joining
-  hits?: number;       // Track hits (backend returns this)
+  id: number;          
+  callName: string;    
+  role: Role;          
+  teamId?: string;  
+  hits?: number;       
+}
+
+//Team model
+export interface Team {
+  id: string;
+  score: number;
+  color: string;
+  shape: string;
+  hits: number;
+  misses: number;
+  shots: number;
+  players: User[];
+  max_players: number;
 }
 
 // Lobby model
 export interface Lobby {
-  code: string;        // Lobby code (backend lobby_code)
-  users: User[];       // Users in lobby (frontend tracking)
-  colors: string[];    // Colors assigned by backend
-  shape: string;       // Shape assigned by backend
-  teams: string[];     // Team names (Team_Red_Square, etc.)
+  code: string;                                 
+  users: User[];                            
+  colors: string[];                            
+  shape: string;                             
+  teams: string[] | Record<string, Team>;  
 }
