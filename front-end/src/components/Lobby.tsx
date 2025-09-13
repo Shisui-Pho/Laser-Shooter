@@ -52,6 +52,9 @@ const LobbyDisplay: React.FC = () => {
           <h4>
             {team.id} ({team.color} {team.shape})
           </h4>
+
+          {/* Display team score */}
+          <p><strong>Team Score:</strong> {team.score ?? 0}</p>
           
           {/*Table to display players in the team*/}
           <table border={1} cellPadding={5}>
