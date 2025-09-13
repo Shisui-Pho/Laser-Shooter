@@ -20,6 +20,7 @@ function PlayerView() {
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState<number | null>(null);
   const [status, setStatus] = useState<string>("Waiting...");
+  const [enemyScore, setEnemyScore]= useState(0);
   
   //Access user and lobby form the game context
   const { user, lobby } = useGame();
@@ -133,6 +134,7 @@ function PlayerView() {
         setStatus("Hit!");
         break;
       case "shot":
+        setEnemyScore((s)=> s + 15);
         setStatus("Got hit");
         break;
       case "missed_shot":
@@ -167,7 +169,7 @@ function PlayerView() {
     if (!videoRef.current || !canvasRef.current || !user) return;
 
     //Disabled crosshair color from stopping shots(temporary thing to make life easier when debugging)
-    /*if (crosshairColor !== "red") {
+    /*if (crosshairColor !== "green") {
       setStatus("Can't shoot — no enemy detected");
       return;
     }*/
@@ -219,6 +221,20 @@ function PlayerView() {
         Score: {score}
       </div>
 
+      <div
+        style={{
+          position: "absolute",
+          top: 60,
+          left: 10,
+          color: "white",
+          background: "rgba(0,0,0,0.5)",
+          padding: "5px",
+          borderRadius: "8px",
+        }}
+      >
+        Enemy Score: {enemyScore}
+      </div>
+
       {/* HUD - Timer */}
       {timer !== null && (
         <div
@@ -263,7 +279,7 @@ function PlayerView() {
           padding: "20px 40px",
           fontSize: "22px",
           borderRadius: "50px",
-          backgroundColor: crosshairColor === "red" ? "limegreen" : "gray",
+          backgroundColor: crosshairColor === "green" ? "limegreen" : "gray",
           color: "white",
           border: "none",
         }}
