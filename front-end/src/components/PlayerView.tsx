@@ -21,6 +21,8 @@ function PlayerView() {
   const [timer, setTimer] = useState<number | null>(null);
   const [status, setStatus] = useState<string>("Waiting...");
   const [enemyScore, setEnemyScore]= useState(0);
+  const [isReloading, setIsReloading] = useState<boolean>(false);
+  const [reloadProgress, setReloadProgress] = useState<number>(0);
   
   //Access user and lobby form the game context
   const { user, lobby } = useGame();
@@ -168,6 +170,23 @@ function PlayerView() {
     //Return if any required of elements is null
     if (!videoRef.current || !canvasRef.current || !user) return;
 
+    //Disable button and start reloading
+    setIsReloading(true);
+    setStatus("Reloading...");
+    setReloadProgress(0);
+
+    //Simulate reload progress
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min((elapsed / 1000) * 100, 100);
+      setReloadProgress(progress);
+      if (progress >= 100) {
+        clearInterval(interval);
+        setIsReloading(false);
+      }
+    }, 50);
+
     //Disabled crosshair color from stopping shots(temporary thing to make life easier when debugging)
     /*if (crosshairColor !== "green") {
       setStatus("Can't shoot — no enemy detected");
@@ -269,23 +288,57 @@ function PlayerView() {
       </div>
 
       {/* Shoot button */}
-      <button
-        onClick={shoot}
-        style={{
-          position: "absolute",
-          bottom: 20,
-          left: "50%",
-          transform: "translateX(-50%)",
-          padding: "20px 40px",
-          fontSize: "22px",
-          borderRadius: "50px",
-          backgroundColor: crosshairColor === "green" ? "limegreen" : "gray",
-          color: "white",
-          border: "none",
-        }}
-      >
-        Shoot
-      </button>
+      <div style={{ 
+        position: "absolute", 
+        bottom: 20, 
+        left: "50%", 
+        transform: "translateX(-50%)",
+        width: 80,
+        height: 80
+      }}>
+        <button
+          onClick={shoot}
+          disabled={isReloading}
+          style={{
+            width: "100%",
+            height: "100%",
+            borderRadius: "50%",
+            backgroundColor: isReloading ? "gray" : "red",
+            color: "white",
+            border: "none",
+            fontSize: "22px",
+            cursor: isReloading ? "not-allowed" : "pointer",
+            position: "relative",
+            overflow: "hidden"
+          }}
+        >
+          Shoot
+          {isReloading && (
+            <svg
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                transform: "rotate(-90deg)",
+              }}
+              viewBox="0 0 100 100"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth="10"
+                strokeDasharray="283"
+                strokeDashoffset={283 * (1 - reloadProgress / 100)}
+              />
+            </svg>
+          )}
+        </button>
+      </div>
     </div>
   );
 }
