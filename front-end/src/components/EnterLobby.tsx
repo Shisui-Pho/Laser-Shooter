@@ -17,7 +17,7 @@ const EnterLobby: React.FC = () => {
     if (!user || !code) return;
 
     //Ensure that only players can join lobbies
-    if (user.role === "player") {
+    if (user?.role === "player") {
       //Request to join the lobby via the lobby service
       const response = await lobbyService.joinLobby(code, user.callName);
 
@@ -88,6 +88,23 @@ const EnterLobby: React.FC = () => {
     }
   };
 
+  // Method for spectators to watch a lobby
+  const handleSpectate = async () => {
+    if (!code) return;
+
+    //Fetch lobby details without joining as a player
+    const lobbyDetails = await lobbyService.getLobbyDetails(code);
+    if (lobbyDetails) {
+      setLobby({
+        code,
+        users: lobbyDetails.users || [],
+        colors: lobbyDetails.colors || [],
+        shape: lobbyDetails.shape || "",
+        teams: lobbyDetails.teams || [],
+      });
+    }
+  };
+
   return (
     <div>
       {/*Welcome message displaying user's call name and role */}
@@ -104,6 +121,13 @@ const EnterLobby: React.FC = () => {
       
       {/*Button to join an existing lobby*/}
       <button onClick={handleJoin}>Join Lobby</button>
+
+      {/*Button for spectators to watch a lobby*/}
+      {user && user.role === "spectator" && (
+        <button onClick={handleSpectate} style={{ marginLeft: "10px" }}>
+          Spectate Lobby
+        </button>
+      )}
 
       {/*Lobby creation section*/}
       {user && user.role === "player" && (
