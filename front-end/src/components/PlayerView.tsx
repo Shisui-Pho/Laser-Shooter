@@ -188,7 +188,7 @@ function PlayerView() {
     }, 50);
 
     //Disabled crosshair color from stopping shots(temporary thing to make life easier when debugging)
-    /*if (crosshairColor !== "green") {
+    /*if (crosshairColor !== "red") {
       setStatus("Can't shoot — no enemy detected");
       return;
     }*/
