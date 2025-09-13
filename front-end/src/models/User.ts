@@ -1,3 +1,5 @@
+//This file will be modularized once mvp is complete
+
 export type Role = "player" | "spectator";
 
 //User model
