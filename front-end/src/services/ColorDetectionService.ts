@@ -137,8 +137,8 @@ class ColorDetectionService {
     //Green: Team color detected
     //Red: Enemy color detected
     if (!detected) return "white";
-    if (detected === this.myTeamColor) return "green"; // friend
-    if (detected === this.enemyTeamColor) return "red"; // enemy
+    if (detected === this.myTeamColor) return "green"; // enemy
+    if (detected === this.enemyTeamColor) return "red"; // friendly
 
     //Return white by default
     return "white"; 
