@@ -88,7 +88,7 @@ const EnterLobby: React.FC = () => {
     }
   };
 
-  // Method for spectators to watch a lobby
+  //Method for spectators to spectate a lobby
   const handleSpectate = async () => {
     if (!code) return;
 

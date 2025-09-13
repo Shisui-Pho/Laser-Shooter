@@ -62,7 +62,6 @@ const LobbyDisplay: React.FC = () => {
               <tr>
                 <th>Player ID</th>
                 <th>Name</th>
-                <th>Hits</th>
               </tr>
             </thead>
             <tbody>
@@ -71,7 +70,6 @@ const LobbyDisplay: React.FC = () => {
                 <tr key={player.id}>
                   <td>{player.id}</td>
                   <td>{player.name}</td>
-                  <td>{player.hits}</td>
                 </tr>
               ))}
             </tbody>
