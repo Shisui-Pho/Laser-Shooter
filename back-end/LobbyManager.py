@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from models import Message, GameOverPayload, Player
+from models import Lobby, Message, GameOverPayload, Player
 from ConnectionManager import ConnectionManager
 import services.service as sv
 from models import Team, TimerReportPayload
@@ -9,7 +9,8 @@ import asyncio
 class LobbyManager:
     def __init__(self, c_manager: ConnectionManager):
         self.c_manager = c_manager
-        self.lobbies: dict[str, dict[str, Team]] = {}
+        #self.lobbies: dict[str, dict[str, Team]] = {}
+        self.lobbies: dict[str, Lobby] = {}
         self.active_lobbies = {}
     
     def create_lobby(self, max_players) -> tuple[str, Team, Team]:
@@ -17,11 +18,12 @@ class LobbyManager:
         lobby_code = sv.generate_lobby_code(list(self.lobbies.keys()))
 
         #create two teams with random color/shape combinations
-        teamA, teamB = sv.create_teams(self.lobbies)
+        #TODO: Make sure teams get unique shape and colours, so that they don't overlap
+        teamA, teamB = sv.create_teams()
         teamA.max_players = max_players // 2
         teamB.max_players = max_players // 2
 
-        self.lobbies[lobby_code] = {teamA.id : teamA, teamB.id : teamB}
+        self.lobbies[lobby_code] = Lobby(teams = {teamA.id : teamA, teamB.id : teamB})
 
         return lobby_code, teamA, teamB
     
@@ -35,7 +37,8 @@ class LobbyManager:
         #await self.c_manager.send_message_to_Lobby(lobby_code,message)
         #start the game
         self.active_lobbies[lobby_code] = {"start_time": time.time() , "duration":60}
-    
+        self.lobbies[lobby_code].game_status = 'running'
+        
     async def game_timer_loop(self):
         while True:
             now = time.time()
@@ -49,6 +52,8 @@ class LobbyManager:
                     game_over = GameOverPayload(winning_team_name=winner.id, winning_team_score=looser.score, 
                                                 losing_team_name=looser.id, losing_team_score=looser.score)
                     message = Message(type="game_over",payload=game_over)
+                    #update lobby game status
+                    self.lobbies[lobby_code].game_status = 'game_over'
                     #broad-cast results
                     await self.c_manager.send_message_to_Lobby(lobby_code=lobby_code, message=message)
                     await self.c_manager.disconnect_lobby(lobby_code=lobby_code)
@@ -77,18 +82,19 @@ class LobbyManager:
     
     def get_team_from_lobby(self, lobby_code:str, team_name:str) -> Team | None:
         if self.lobby_code_exists(lobby_code):
-            return self.lobbies[lobby_code][team_name]
+            return self.lobbies[lobby_code].teams[team_name]
         return None
     
-    def get_lobby(self, lobby_code: str) -> dict[str, Team] | None:
-        return self.lobbies.get(lobby_code)
+    def get_lobby(self, lobby_code: str) -> Lobby | None:
+        lobby = self.lobbies.get(lobby_code)
+        return lobby
     
     def get_teams_in_lobby(self,lobby_code:str) -> tuple[Team,Team]:
         lobby = self.lobbies.get(lobby_code)
         if not lobby:
             raise HTTPException(status_code=500, detail="Lobby was not found.")
         #get teams
-        teams = list(lobby.values())
+        teams = list(lobby.teams.values())
         teamA,teamB = teams[0],teams[1]
         return teamA, teamB
     def is_lobby_active(self, lobby_code: str)-> bool:

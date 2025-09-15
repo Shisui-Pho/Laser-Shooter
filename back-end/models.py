@@ -31,6 +31,9 @@ class Team(BaseModel):
     players: list[Player] = []
     max_players: int
 
+class Lobby(BaseModel):
+    teams: dict[str, Team]
+    game_status:str = 'not_started'
 
 #Models for WebSocket messages
 class ShotHitPayload(BaseModel):
