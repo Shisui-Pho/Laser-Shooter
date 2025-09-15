@@ -203,3 +203,40 @@
   width: 1px;
   height: 8px;
 }
+
+/*-----------------------Blood Splatter------------------------*/
+.blood-spatter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(139, 0, 0, 0.5) 0%,
+    rgba(139, 0, 0, 0.3) 10%,
+    transparent 30%
+  );
+  background-size: 200% 200%;
+  background-position: center;
+  animation: bloodSpatter 2s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes bloodSpatter {
+  0% {
+    opacity: 1;
+    background-size: 100% 100%;
+    filter: blur(5px);
+  }
+  50% {
+    opacity: 0.8;
+    background-size: 150% 150%;
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 0;
+    background-size: 200% 200%;
+    filter: blur(2px);
+  }
+}
