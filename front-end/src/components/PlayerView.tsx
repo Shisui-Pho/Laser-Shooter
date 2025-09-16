@@ -119,7 +119,7 @@ function PlayerView() {
     }
 
     //Establish a websocket connection using the websocket service
-    WebSocketService.connect(lobby.code, user.teamId, handleGameMessage);
+    WebSocketService.connect(lobby.code, user.teamId, user.id,handleGameMessage);
 
     //Disconnect websocket when component unmounts
     return () => {

@@ -31,6 +31,13 @@ class Team(BaseModel):
     players: list[Player] = []
     max_players: int
 
+    def get_player(self, user_id: int) -> Player | None:
+        for player in self.players:
+            if player.id == user_id:
+                return player
+        #user not found in team
+        return None
+
 class Lobby(BaseModel):
     teams: dict[str, Team]
     game_status:str = 'not_started'

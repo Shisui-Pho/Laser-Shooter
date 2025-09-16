@@ -15,9 +15,10 @@ class WebSocketService {
   connect(
     lobbyCode: string,
     teamId: string,
+    userId: number,
     onMessage: (msg: GameMessage) => void
   ) {
-    this.socket = new WebSocket(`ws://127.0.0.1:8000/ws/${lobbyCode}/${teamId}`);
+    this.socket = new WebSocket(`ws://127.0.0.1:8000/ws/${lobbyCode}/${teamId}/${userId}`);
 
     this.socket.onopen = () => {
       console.log("Connected to WebSocket");
