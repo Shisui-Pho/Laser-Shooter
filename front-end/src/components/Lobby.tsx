@@ -42,65 +42,47 @@ const LobbyDisplay: React.FC = () => {
 
   //Main component showing lobby teams and players
   return (
-    <div>
-      <h2>Lobby Code: {lobbyDetails.code}</h2>
+    <div style={{ marginTop: "2rem" }}>
+      <h3>Lobby Teams</h3>
+      
+      {/*Map through each team in the lobby*/}
+      {Object.values(lobbyDetails.teams).map((team: any) => (
+        <div key={team.id} style={{ marginBottom: "20px" }}>
+          {/* Display team header with ID, color and shape */}
+          <h4>
+            {team.id} ({team.color} {team.shape})
+          </h4>
 
-      {/*Display teams*/}
-      {Array.isArray(lobbyDetails.teams) ? (
-        //Old backend data structure
-        <div>
-          <h3>Teams</h3>
-          <ul>
-            {(lobbyDetails.teams ?? []).map((teamId) => (
-              <li key={teamId}>{teamId}</li>
-            ))}
-          </ul>
+          {/* Display team score */}
+          <p><strong>Team Score:</strong> {team.score ?? 0}</p>
+          
+          {/*Table to display players in the team*/}
+          <table border={1} cellPadding={5}>
+            <thead>
+              <tr>
+                <th>Player ID</th>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/*Map through each player in the team*/}
+              {team.players.map((player: any) => (
+                <tr key={player.id}>
+                  <td>{player.id}</td>
+                  <td>{player.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          
+          {/*Display player count for the team*/}
+          <p>
+            {team.players.length}/{team.max_players} players
+          </p>
         </div>
-      ) : (
-        //New backend data structure
-        <>
-          <h3>Lobby Status: {lobbyDetails.teams.game_status}</h3>
-          {Object.values(lobbyDetails.teams.teams ?? {}).map((team: any) => (
-            <div key={team.id} style={{ marginBottom: "20px" }}>
-              {/* Display team header with ID, color and shape */}
-              <h4>
-                {team.id} ({team.color} {team.shape})
-              </h4>
-
-              {/* Display team score */}
-              <p>
-                <strong>Team Score:</strong> {team.score ?? 0}
-              </p>
-
-              {/*Table to display players in the team*/}
-              <table border={1} cellPadding={5}>
-                <thead>
-                  <tr>
-                    <th>Player ID</th>
-                    <th>Name</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/*Map through each player in the team*/}
-                  {(team.players ?? []).map((player: any) => (
-                    <tr key={player.id}>
-                      <td>{player.id}</td>
-                      <td>{player.name}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/*Display player count for the team*/}
-              <p>
-                {(team.players?.length ?? 0)}/{team.max_players} players
-              </p>
-            </div>
-          ))}
-        </>
-      )}
+      ))}
     </div>
   );
-}
+};
 
 export default LobbyDisplay;

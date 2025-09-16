@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { lobbyService } from "../services/LobbyServices.ts";
+import { useNavigate } from 'react-router-dom';
 
 //Component for entering or creating a game lobby
 const EnterLobby: React.FC = () => {
   //Access game context for lobby and user information
   const { user, setUser, lobby, setLobby } = useGame();
-  
+  const navigate = useNavigate();
   //States
   const [code, setCode] = useState("");
   const [maxPlayers, setMaxPlayers] = useState<number>(2);//Default is 2
@@ -42,6 +43,8 @@ const EnterLobby: React.FC = () => {
             teams: lobbyDetails.teams || [],
           });
         }
+        //redirect to the lobby waiting room
+        navigate('/lobby', {replace: true})
       }
     }
   };
@@ -55,8 +58,9 @@ const EnterLobby: React.FC = () => {
     if (!user || user.role !== "player") return;
 
     //Request the lobby service to create a new lobby 
+    console.log('\n\n\n\n\nCreating lobby\n\n\n\n\n')
     const createResponse = await lobbyService.createLobby(maxPlayers);
-    
+    console.log(createResponse);
     if (createResponse) {
       //Update global lobby state with new lobby details
       setLobby({
