@@ -94,7 +94,9 @@ function PlayerView() {
       }
       //Handle object based team data
       else {
-        const teams = Object.values(lobby.teams);
+        const teamsObj = (lobby.teams as { teams: Record<string, Team> }).teams;
+        const teams: Team[] = Object.values(teamsObj);
+
         myTeam = teams.find((t) => t.id === user.teamId);
         enemyTeam = teams.find((t) => t.id !== user.teamId);
       }
