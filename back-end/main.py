@@ -108,8 +108,8 @@ def assign_team(lobby_code: str, player:Player):
         teamB.players.append(player)
 
 #Socket endpoint to handle image processing and broadcasting messages
-@app.websocket("/ws/{lobby_code}/{team_name}")
-async def websocket_endpoint(websocket: WebSocket, lobby_code: str, team_name:str):
+@app.websocket("/ws/{lobby_code}/{team_name}/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, lobby_code: str, team_name:str, user_id: int):
     #You can only connect if the lobby and team exist
     if not l_manager.lobby_code_exists(lobby_code):
         await websocket.close(code=1000)
@@ -122,12 +122,16 @@ async def websocket_endpoint(websocket: WebSocket, lobby_code: str, team_name:st
     if l_manager.is_lobby_active(lobby_code):
         await websocket.close(code=100)
         return
-
+    #if player is not in the team
+    player = team.get_player(user_id)
+    if not player:
+        await websocket.close(code=1000)
+        return
     #connect to the websocket
     await c_manager.connect(lobby_code,team_name, websocket)
 
     #Broadcast successful joined message to lobby
-    joined_payload = JoinedTeamPayload(user_name='', team_name=team_name, 
+    joined_payload = JoinedTeamPayload(user_name=player.name, team_name=team_name, 
                                       members_remaining=team.max_players - len(team.players), max_members=team.max_players)
     message = Message(type='join', payload=joined_payload)
     await c_manager.send_message_to_Lobby(lobby_code, message)
