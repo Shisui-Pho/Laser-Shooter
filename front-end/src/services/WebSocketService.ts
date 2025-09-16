@@ -18,6 +18,10 @@ class WebSocketService {
     userId: number,
     onMessage: (msg: GameMessage) => void
   ) {
+    //If the connection has already been established, we shold stop the creation of a new one.
+    if (this.socket) {
+      return;
+    }
     this.socket = new WebSocket(`ws://127.0.0.1:8000/ws/${lobbyCode}/${teamId}/${userId}`);
 
     this.socket.onopen = () => {
@@ -61,6 +65,11 @@ class WebSocketService {
   chageMessageHandler(onMessage:(msg: GameMessage)=>void){
     this.messageHandler = onMessage;
   }
+  
+  isConnected() {
+  return this.socket && this.socket.readyState === WebSocket.OPEN;
+}
+
   // Method to send a shot
   sendShot(image: string, player: User, color: string) {
   if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
