@@ -14,9 +14,9 @@ export interface User {
 //Team model
 export interface Team {
   id: string;
-  score: number;
+  score?: number;
   color: string;
-  shape: string;
+  shape?: string;
   hits: number;
   misses: number;
   shots: number;
@@ -26,9 +26,14 @@ export interface Team {
 
 // Lobby model
 export interface Lobby {
-  code: string;                                 
-  users: User[];                            
-  colors: string[];                            
-  shape: string;                             
-  teams: string[] | Record<string, Team>;  
+  code: string;
+  users: User[];
+  colors: string[];
+  shape: string;
+   teams:
+    | string[]
+    | {
+        teams: Record<string, Team>;
+        game_status: string;
+      };
 }
