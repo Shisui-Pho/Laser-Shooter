@@ -120,7 +120,10 @@ const EnterLobby: React.FC = () => {
       />
       
       {/*Button to join an existing lobby*/}
-      <button onClick={handleJoin}>Join Lobby</button>
+      {user?.role === 'player' && (
+        <button onClick={handleJoin}>Join Lobby</button>
+      )}
+      
 
       {/*Button for spectators to watch a lobby*/}
       {user && user.role === "spectator" && (
