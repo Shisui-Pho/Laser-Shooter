@@ -9,7 +9,8 @@ export interface GameMessage {
 //Websocket class
 class WebSocketService {
   private socket: WebSocket | null = null;
-
+  //An event halder for the messages that can be changes
+  private messageHandler: (msg: GameMessage) => void = () => {};
   //Connect to the websocket
   connect(
     lobbyCode: string,
@@ -21,7 +22,7 @@ class WebSocketService {
     this.socket.onopen = () => {
       console.log("Connected to WebSocket");
     };
-
+    this.messageHandler = onMessage;
 
     //Lets parse the websocket message
     this.socket.onmessage = (event) => {
@@ -43,7 +44,7 @@ class WebSocketService {
         }
 
         //If we failed to parse the message, print the error in console
-        onMessage(message as GameMessage);
+        this.messageHandler(message as GameMessage);
       } catch (err) {
         console.error("Failed to parse WebSocket message", err);
       }
@@ -55,9 +56,12 @@ class WebSocketService {
     };
   }
 
-
- // Method to send a shot
-sendShot(image: string, player: User, color: string) {
+  //update the message handler
+  chageMessageHandler(onMessage:(msg: GameMessage)=>void){
+    this.messageHandler = onMessage;
+  }
+  // Method to send a shot
+  sendShot(image: string, player: User, color: string) {
   if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
 
   const shotData = {
