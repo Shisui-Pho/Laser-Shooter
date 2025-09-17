@@ -4,6 +4,7 @@ import type { Lobby } from "../../models/User.ts";
 import { lobbyService } from "../../services/LobbyServices.ts";
 import WebSocketService from "../../services/WebSocketService.ts";
 import type { GameMessage } from "../../services/WebSocketService.ts";
+import { useNavigate } from 'react-router-dom';
 
 const LobbyDisplay: React.FC = () => {
   //
@@ -12,6 +13,7 @@ const LobbyDisplay: React.FC = () => {
   const [messages, setMessages] = useState<GameMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [game_status] = "status_here"; //placeholder for game_status later
+  const navigate = useNavigate();
 
   const fetchLobbyDetails = async (lobbyCode: string) => {
     console.log('Fetched');
@@ -53,7 +55,8 @@ const LobbyDisplay: React.FC = () => {
     switch (msg.type) {
       case 'start_game':
         //Redirect logic would go here
-        console.log("Start game received, would redirect now");
+        //console.log("Start game received, would redirect now");
+        navigate('/player', {replace: true})
         break;
       case 'join':
         //Add join message to the messages list

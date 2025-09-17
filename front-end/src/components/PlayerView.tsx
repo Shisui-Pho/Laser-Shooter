@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CameraService from "../services/CameraService";
 import Crosshair from "../widgets/Crosshair";
 import ColorDetectionService, { type DetectedColor } from "../services/ColorDetectionService";
@@ -123,10 +123,10 @@ function PlayerView() {
     WebSocketService.chageMessageHandler(handleGameMessage);
 
     //Disconnect websocket when component unmounts
-    return () => {
-      console.log("Disconnecting WebSocket");
-      WebSocketService.disconnect();
-    };
+    // return () => {
+    //   console.log("Disconnecting WebSocket");
+    //   WebSocketService.disconnect();
+    // };
   }, [user?.teamId, lobby?.code, lobby?.teams, lobby?.colors, lobby?.shape]);
 
   //Handle messages from websocket
