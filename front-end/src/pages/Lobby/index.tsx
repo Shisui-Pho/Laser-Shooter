@@ -6,7 +6,7 @@ import WebSocketService from "../../services/WebSocketService.ts";
 import type { GameMessage } from "../../services/WebSocketService.ts";
 import { useNavigate } from 'react-router-dom';
 
-const LobbyDisplay: React.FC = () => {
+const Index: React.FC = () => {
   //
   const { lobby, user } = useGame();
   const [lobbyDetails, setLobbyDetails] = useState<Lobby | null>(null);
@@ -220,4 +220,4 @@ const LobbyDisplay: React.FC = () => {
   );
 };
 
-export default LobbyDisplay;
+export default Index;

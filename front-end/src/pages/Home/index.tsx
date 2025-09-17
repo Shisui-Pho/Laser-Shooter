@@ -2,7 +2,7 @@ import { useState } from "react";
 import EnterCallName from "../../components/EnterCallName";
 import EnterLobby from "../../components/EnterLobby";
 
-function Home() {
+function Index() {
   //
   const [submitted, setSubmitted] = useState(false);
   return (
@@ -17,4 +17,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Index;

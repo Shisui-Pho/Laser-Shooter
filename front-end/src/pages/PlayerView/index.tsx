@@ -1,9 +1,9 @@
 import PlayerView from "../../components/PlayerView";
-function Home() {
+function Index() {
   return (
     <div>
       <PlayerView />
     </div>
   );
 }
-export default Home;
+export default Index;
