@@ -74,21 +74,22 @@ const EnterLobby: React.FC = () => {
       //Update local state with the new lobby code
       setCode(createResponse.lobby_code);
 
-      //Have the host automatically join the newly created lobby
-      const joinResponse = await lobbyService.joinLobby(
-        createResponse.lobby_code,
-        user.callName
-      );
+      //Handle join will join the user
 
-      //Update user data with backend information
-      if (joinResponse && joinResponse.user) {
-        setUser({
-          ...user,
-          id: joinResponse.user.id,        
-          teamId: joinResponse.user.team_id,
-          hits: joinResponse.user.hits,
-        });
-      }
+      // const joinResponse = await lobbyService.joinLobby(
+      //   createResponse.lobby_code,
+      //   user.callName
+      // );
+
+      // //Update user data with backend information
+      // if (joinResponse && joinResponse.user) {
+      //   setUser({
+      //     ...user,
+      //     id: joinResponse.user.id,        
+      //     teamId: joinResponse.user.team_id,
+      //     hits: joinResponse.user.hits,
+      //   });
+      // }
     }
   };
 
