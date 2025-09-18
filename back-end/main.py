@@ -46,13 +46,9 @@ async def create_lobby(max_players: int):
     
     #create the teams and lobby simultaniously
     lobby_code, teamA, teamB = l_manager.create_lobby(max_players)
-    colors = [teamA.color, teamB.color]
-    return {
-        "lobby_code": lobby_code,
-        "colors": colors,
-        "shape": teamA.shape, #the shapes are the same for both teams 
-        "teams": [teamA.id, teamB.id]
-        }
+    
+    #return a nicely formated lobby details object
+    return sv.to_lobby_creation_json(lobby_code, teamA, teamB)
 
 
 @app.post("/JoinLobby/{lobby_code}/{username}")
@@ -72,8 +68,13 @@ async def join_lobby(lobby_code: str, username: str):
 async def get_lobby_details(lobby_code: str):
     if not l_manager.lobby_code_exists(lobby_code):
         raise HTTPException(status_code=404, detail="Lobby not found.")
+
     lobby = l_manager.get_lobby(lobby_code)
-    return {"teams": {} if not lobby else lobby}
+    if not lobby:
+        return {"message": "lobby not found"}
+
+    #return a nicely formated lobby details    
+    return sv.to_lobby_details_json(lobby_code, lobby)
 
     
 @app.post("/LeaveTeam/{lobby_code}")
