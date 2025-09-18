@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useGame } from "../../context/GameContext";
-import type { Lobby } from "../../models/User.ts";
+import type { Lobby, Team } from "../../models/User.ts";
 import { lobbyService } from "../../services/LobbyServices.ts";
 import WebSocketService from "../../services/WebSocketService.ts";
 import type { GameMessage } from "../../services/WebSocketService.ts";
@@ -18,16 +18,20 @@ const Index: React.FC = () => {
   const fetchLobbyDetails = async (lobbyCode: string) => {
     console.log('Fetched');
     const details = await lobbyService.getLobbyDetails(lobbyCode);
-    if (details) setLobbyDetails(details);
+    if (details){
+      setLobbyDetails(details);
+    } 
   };
 
   //Scroll to bottom of messages whenever messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
+  
+  //TODO: Break this hook into spectator and player hook to avoid those nasty if statements
   useEffect(() => {
-    if (!user?.teamId || !lobby?.code) {
+    if(!user)return;
+    if (user.role === "player" && (!user?.teamId || !lobby?.code)) {
       console.log("WS not connecting yet, missing teamId or lobby code", {
         teamId: user?.teamId,
         lobbyCode: lobby?.code,
@@ -38,21 +42,33 @@ const Index: React.FC = () => {
     if (!lobby?.code) return;
     fetchLobbyDetails(lobby.code);
     
-    if(!WebSocketService.isConnected())
+    //Only players can connect to the websockets
+    if(!WebSocketService.isConnected() && user.role === 'player' && user.teamId)
     {
       //Open new connection when not connected
       WebSocketService.connect(lobby?.code, user.teamId, user.id, handleGameMessage);
       console.log('Executed one to 3');
     }
-    //We don't need to poll on certain intervals, the websocket will tell us when to
-    //- We just listen for a "join" message and poll
-    //const interval = setInterval(() => fetchLobbyDetails(lobby.code!), 2000);
-    //return () => clearInterval(interval);
+
+    //poll the data periodically for spactators
+    if(user.role === 'spectator'){
+      const interval = setInterval(() => {
+        fetchLobbyDetails(lobby.code!) 
+      }, 2000);
+
+      //if the game has ended, stop the polling
+      if(lobbyDetails?.game_status === "game_over"){
+        clearInterval(interval);
+        console.log("Phiwo and Galane ended the game!!!");
+      }
+      
+      return () => clearInterval(interval);
+    }
+    //FIXME: Lobby.code, user.teamId, user.id do not change once the player has been added
+    //- do we really need to keep track of this?    
   }, [lobby?.code, user?.teamId, user?.id]);
 
   const handleGameMessage = (msg: GameMessage) => {
-    console.log("Received message:", msg);
-    
     //Handle different message types
     switch (msg.type) {
       case 'start_game':
@@ -96,12 +112,6 @@ const Index: React.FC = () => {
     );
   }
 
-  //Use new backend structure for teams
-  const teams =
-    typeof lobbyDetails.teams === "object" && "teams" in lobbyDetails.teams
-      ? Object.values((lobbyDetails.teams as { teams: Record<string, any> }).teams ?? {})
-      : [];
-
  return (
     <div className="min-h-screen p-4 md:p-6">
       {/* Header Section */}
@@ -124,9 +134,7 @@ const Index: React.FC = () => {
         <div className="mt-4 flex items-center">
           <div className={`h-3 rounded-full w-3 mr-2`}></div>
           <span className="text-sm">
-            Status: {"game_status" in (lobbyDetails.teams as any)
-              ? (lobbyDetails.teams as { game_status: string }).game_status
-              : "Waiting"}
+            Status: {lobbyDetails.game_status}
           </span>
         </div>
       </div>
@@ -134,7 +142,7 @@ const Index: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Teams Section */}
         <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {teams.map((team: any, idx: number) => (
+          {lobbyDetails.teams.map((team: Team, idx: number) => (
             <div key={team.id} className="rounded-xl p-5 shadow-2xl">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-xl font-bold">
@@ -173,7 +181,8 @@ const Index: React.FC = () => {
           ))}
         </div>
 
-        {/* Messages Section */}
+        {/* Messages Section for players joining the lobby*/}
+        {lobbyDetails.game_status in ["running","game_over"] &&(
         <div className="rounded-xl overflow-hidden shadow-2xl">
           <div className="px-5 py-3">
             <h3 className="text-lg font-bold flex items-center">
@@ -204,15 +213,15 @@ const Index: React.FC = () => {
           
           <div className="border-t p-3">
             <div className="text-xs text-center">
-             Laser shooter • {teams.reduce((acc, team) => acc + (team.players?.length || 0), 0)} players online
+             Laser shooter • {lobbyDetails.teams.reduce((acc, team) => acc + (team.players?.length || 0), 0)} players online
             </div>
           </div>
         </div>
+      )}
       </div>
-
+      
       {/* Game Start Indicator */}
-      {"game_status" in (lobbyDetails.teams as any) && 
-        (lobbyDetails.teams as { game_status: string }).game_status === "starting" && (
+      {lobbyDetails.game_status === "starting" && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="p-8 rounded-xl text-center animate-pulse">
             <h2 className="text-2xl font-bold mb-2">Game Starting Soon!</h2>

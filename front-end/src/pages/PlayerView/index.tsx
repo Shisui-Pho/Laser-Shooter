@@ -71,17 +71,19 @@ function Index() {
     let myTeam: Team | undefined;
     let enemyTeam: Team | undefined;
 
+    //TODO: Refine this since the Lobby structure was changed
     //Determine team information using the lobby structure
     if (lobby.teams) {
       //Handle array based team data
       if (Array.isArray(lobby.teams)) {
         if (Array.isArray(lobby.colors) && lobby.teams.length === lobby.colors.length) {
-          const teams = lobby.teams.map((id, idx) => ({
-            id,
-            color: lobby.colors[idx],
-            shape: lobby.shape ?? null,
-          })) as Team[];
+          // const teams = lobby.teams.map((id, idx) => ({
+          //   id,
+          //   color: lobby.colors[idx],
+          //   shape: lobby.shape ?? null,
+          // })) as Team[];
 
+          const teams = lobby.teams;
           myTeam = teams.find((t) => t.id === user.teamId);
           enemyTeam = teams.find((t) => t.id !== user.teamId);
         } else {
@@ -93,8 +95,8 @@ function Index() {
       }
       //Handle object based team data
       else {
-        const teamsObj = (lobby.teams as { teams: Record<string, Team> }).teams;
-        const teams: Team[] = Object.values(teamsObj);
+        //const teamsObj = (lobby.teams as { teams: Record<string, Team> }).teams;
+        const teams: Team[] = lobby.teams; //Object.values(teamsObj);
 
         myTeam = teams.find((t) => t.id === user.teamId);
         enemyTeam = teams.find((t) => t.id !== user.teamId);

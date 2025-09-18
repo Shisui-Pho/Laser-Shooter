@@ -41,6 +41,7 @@ const EnterLobby: React.FC = () => {
             colors: lobbyDetails.colors || [],
             shape: lobbyDetails.shape || "",
             teams: lobbyDetails.teams || [],
+            game_status: lobbyDetails.game_status
           });
         }
         //redirect to the lobby waiting room
@@ -58,7 +59,7 @@ const EnterLobby: React.FC = () => {
     if (!user || user.role !== "player") return;
 
     //Request the lobby service to create a new lobby 
-    console.log('\n\n\n\n\nCreating lobby\n\n\n\n\n')
+    //console.log('\n\n\n\n\nCreating lobby\n\n\n\n\n')
     const createResponse = await lobbyService.createLobby(maxPlayers);
     console.log(createResponse);
     if (createResponse) {
@@ -69,9 +70,11 @@ const EnterLobby: React.FC = () => {
         colors: createResponse.colors,
         shape: createResponse.shape,
         teams: createResponse.teams,
+        game_status: "not_started"
       });
 
       //Update local state with the new lobby code
+      console.log(createResponse.lobby_code);
       setCode(createResponse.lobby_code);
 
       //Handle join will join the user
@@ -106,7 +109,11 @@ const EnterLobby: React.FC = () => {
         colors: lobbyDetails.colors || [],
         shape: lobbyDetails.shape || "",
         teams: lobbyDetails.teams || [],
+        game_status: lobbyDetails.game_status || "not_started"
       });
+
+      //Navigate to lobby screen
+      navigate('/lobby', {replace: true})
     }
   };
 
