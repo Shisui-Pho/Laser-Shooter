@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { lobbyService } from "../services/LobbyServices.ts";
+import { useNavigate } from 'react-router-dom';
 
 //Component for entering or creating a game lobby
 const EnterLobby: React.FC = () => {
   //Access game context for lobby and user information
   const { user, setUser, lobby, setLobby } = useGame();
-  
+  const navigate = useNavigate();
   //States
   const [code, setCode] = useState("");
   const [maxPlayers, setMaxPlayers] = useState<number>(2);//Default is 2
@@ -40,8 +41,11 @@ const EnterLobby: React.FC = () => {
             colors: lobbyDetails.colors || [],
             shape: lobbyDetails.shape || "",
             teams: lobbyDetails.teams || [],
+            game_status: lobbyDetails.game_status
           });
         }
+        //redirect to the lobby waiting room
+        navigate('/lobby', {replace: true})
       }
     }
   };
@@ -55,8 +59,9 @@ const EnterLobby: React.FC = () => {
     if (!user || user.role !== "player") return;
 
     //Request the lobby service to create a new lobby 
+    //console.log('\n\n\n\n\nCreating lobby\n\n\n\n\n')
     const createResponse = await lobbyService.createLobby(maxPlayers);
-    
+    console.log(createResponse);
     if (createResponse) {
       //Update global lobby state with new lobby details
       setLobby({
@@ -65,26 +70,29 @@ const EnterLobby: React.FC = () => {
         colors: createResponse.colors,
         shape: createResponse.shape,
         teams: createResponse.teams,
+        game_status: "not_started"
       });
 
       //Update local state with the new lobby code
+      console.log(createResponse.lobby_code);
       setCode(createResponse.lobby_code);
 
-      //Have the host automatically join the newly created lobby
-      const joinResponse = await lobbyService.joinLobby(
-        createResponse.lobby_code,
-        user.callName
-      );
+      //Handle join will join the user
 
-      //Update user data with backend information
-      if (joinResponse && joinResponse.user) {
-        setUser({
-          ...user,
-          id: joinResponse.user.id,        
-          teamId: joinResponse.user.team_id,
-          hits: joinResponse.user.hits,
-        });
-      }
+      // const joinResponse = await lobbyService.joinLobby(
+      //   createResponse.lobby_code,
+      //   user.callName
+      // );
+
+      // //Update user data with backend information
+      // if (joinResponse && joinResponse.user) {
+      //   setUser({
+      //     ...user,
+      //     id: joinResponse.user.id,        
+      //     teamId: joinResponse.user.team_id,
+      //     hits: joinResponse.user.hits,
+      //   });
+      // }
     }
   };
 
@@ -101,7 +109,11 @@ const EnterLobby: React.FC = () => {
         colors: lobbyDetails.colors || [],
         shape: lobbyDetails.shape || "",
         teams: lobbyDetails.teams || [],
+        game_status: lobbyDetails.game_status || "not_started"
       });
+
+      //Navigate to lobby screen
+      navigate('/lobby', {replace: true})
     }
   };
 
@@ -120,7 +132,10 @@ const EnterLobby: React.FC = () => {
       />
       
       {/*Button to join an existing lobby*/}
-      <button onClick={handleJoin}>Join Lobby</button>
+      {user?.role === 'player' && (
+        <button onClick={handleJoin}>Join Lobby</button>
+      )}
+      
 
       {/*Button for spectators to watch a lobby*/}
       {user && user.role === "spectator" && (

@@ -1,15 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import CameraService from "../services/CameraService";
-import Crosshair from "../widgets/Crosshair";
-import ColorDetectionService, { type DetectedColor } from "../services/ColorDetectionService";
-import WebSocketService, { type GameMessage } from "../services/WebSocketService";
-import { useGame } from "../context/GameContext";
-import type { Team } from "../models/User";
+import { useEffect, useRef, useState } from "react";
+import CameraService from "../../services/CameraService";
+import Crosshair from "../../widgets/Crosshair";
+import ColorDetectionService, { type DetectedColor } from "../../services/ColorDetectionService";
+import WebSocketService, { type GameMessage } from "../../services/WebSocketService";
+import { useGame } from "../../context/GameContext";
+import type { Team } from "../../models/User";
 
 
-//This code is temporary and just for the MVP, will be cleaned & modularized once after MVP fully works
-function PlayerView() {
-  //Video and canvas refs
+function Index() {
+//Video and canvas refs
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -72,17 +71,19 @@ function PlayerView() {
     let myTeam: Team | undefined;
     let enemyTeam: Team | undefined;
 
+    //TODO: Refine this since the Lobby structure was changed
     //Determine team information using the lobby structure
     if (lobby.teams) {
       //Handle array based team data
       if (Array.isArray(lobby.teams)) {
         if (Array.isArray(lobby.colors) && lobby.teams.length === lobby.colors.length) {
-          const teams = lobby.teams.map((id, idx) => ({
-            id,
-            color: lobby.colors[idx],
-            shape: lobby.shape ?? null,
-          })) as Team[];
+          // const teams = lobby.teams.map((id, idx) => ({
+          //   id,
+          //   color: lobby.colors[idx],
+          //   shape: lobby.shape ?? null,
+          // })) as Team[];
 
+          const teams = lobby.teams;
           myTeam = teams.find((t) => t.id === user.teamId);
           enemyTeam = teams.find((t) => t.id !== user.teamId);
         } else {
@@ -94,8 +95,8 @@ function PlayerView() {
       }
       //Handle object based team data
       else {
-        const teamsObj = (lobby.teams as { teams: Record<string, Team> }).teams;
-        const teams: Team[] = Object.values(teamsObj);
+        //const teamsObj = (lobby.teams as { teams: Record<string, Team> }).teams;
+        const teams: Team[] = lobby.teams; //Object.values(teamsObj);
 
         myTeam = teams.find((t) => t.id === user.teamId);
         enemyTeam = teams.find((t) => t.id !== user.teamId);
@@ -119,13 +120,14 @@ function PlayerView() {
     }
 
     //Establish a websocket connection using the websocket service
-    WebSocketService.connect(lobby.code, user.teamId, user.id,handleGameMessage);
+    //WebSocketService.connect(lobby.code, user.teamId, handleGameMessage);
+    WebSocketService.chageMessageHandler(handleGameMessage);
 
     //Disconnect websocket when component unmounts
-    return () => {
-      console.log("Disconnecting WebSocket");
-      WebSocketService.disconnect();
-    };
+    // return () => {
+    //   console.log("Disconnecting WebSocket");
+    //   WebSocketService.disconnect();
+    // };
   }, [user?.teamId, lobby?.code, lobby?.teams, lobby?.colors, lobby?.shape]);
 
   //Handle messages from websocket
@@ -344,5 +346,4 @@ function PlayerView() {
     </div>
   );
 }
-
-export default PlayerView;
+export default Index;

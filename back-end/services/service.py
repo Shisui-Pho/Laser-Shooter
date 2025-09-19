@@ -1,5 +1,5 @@
 import random
-from models import Player, Team
+from models import Lobby, Player, Team
 colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
 shapes = ['circle', 'square', 'triangle', 'rectangle']
 color_ranges = {
@@ -51,3 +51,22 @@ def decode_json(data):
     color = data.get("color")
     color_range = color_ranges.get(color)
     return image_data, player, color_range
+
+
+def to_lobby_details_json(lobby_code:str, lobby: Lobby):
+    teams = [team for team in lobby.teams.values()]
+    teamA, teamB = teams[0], teams[1]
+    #Return the json
+    #return to_lobby_details_teams_json(lobby_code, teamA, teamB, lobby.game_status)
+    return {"code": lobby_code,
+        "colors": [teamA.color, teamB.color],
+        "shape": teamA.shape, #the shapes are the same for both teams 
+        "teams": [teamA, teamB],
+        "game_status": lobby.game_status}
+
+def to_lobby_creation_json(lobby_code:str, teamA: Team, teamB: Team, game_status: str = "not_started"):
+    return {"lobby_code": lobby_code,
+        "colors": [teamA.color, teamB.color],
+        "shape": teamA.shape, #the shapes are the same for both teams 
+        "teams": [teamA.id, teamB.id],
+        "game_status": game_status}

@@ -30,10 +30,6 @@ export interface Lobby {
   users: User[];
   colors: string[];
   shape: string;
-   teams:
-    | string[]
-    | {
-        teams: Record<string, Team>;
-        game_status: string;
-      };
+  teams: Team[];
+  game_status: string;
 }
