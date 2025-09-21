@@ -1,5 +1,6 @@
 from fastapi import WebSocket
 from models import Message
+from starlette.websockets import WebSocketState
 
 class ConnectionManager:
     def __init__(self):
@@ -33,25 +34,25 @@ class ConnectionManager:
             del self.active_connections[lobby_code]
     
     async def send_message_to_team(self,lobby_code:str, team_name:str, message: Message):
-
         #Broadcase the message to all connections in the specified team of the specified lobby
         if lobby_code in self.active_connections.keys():
             if team_name in self.active_connections[lobby_code].keys():
                 for connection in self.active_connections[lobby_code][team_name]:
-                    await connection.send_json(message.model_dump_json())
+                    if connection.client_state == WebSocketState.CONNECTED:
+                        await connection.send_json(message.model_dump_json())
 
     async def send_message_to_Lobby(self, lobby_code:str,message:Message):
-
         #Broadcast the message to all connections in the specified lobby
         if lobby_code in self.active_connections.keys():
-            
             #At most, we will have 2 teams in a lobby, so we can iterate through both teams and send the message to each
             for team in self.active_connections[lobby_code].keys():
                 for connection in self.active_connections[lobby_code][team]:
-                    await connection.send_json(message.model_dump_json())
+                    if connection.client_state == WebSocketState.CONNECTED:
+                        await connection.send_json(message.model_dump_json())
 
     async def send_personal_message(self, message: Message, websocket: WebSocket):
-        await websocket.send_json(message.model_dump_json())
+        if websocket.client_state == WebSocketState.CONNECTED:
+            await websocket.send_json(message.model_dump_json())
     
     async def disconnect_lobby(self, lobby_code:str):
         lobby = self.active_connections.get(lobby_code)
@@ -60,4 +61,13 @@ class ConnectionManager:
         #disconnect everyone on the lobby
         for team_id, team_connections in lobby.items():
             for connection in team_connections:
-                await connection.close()
+                if connection.client_state == WebSocketState.CONNECTED:
+                    await connection.close(code=1000)
+
+        #delete lobby connections
+        await self._remove_lobby_connections(lobby_code)
+
+    async def _remove_lobby_connections(self, lobby_code:str):
+        if lobby_code in self.active_connections:
+            #First close all open connections if there are any
+            del self.active_connections[lobby_code]
