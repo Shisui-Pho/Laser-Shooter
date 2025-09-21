@@ -5,7 +5,7 @@ import { lobbyService } from "../../services/LobbyServices.ts";
 import WebSocketService from "../../services/WebSocketService.ts";
 import type { GameMessage } from "../../services/WebSocketService.ts";
 import { useNavigate } from 'react-router-dom';
-
+import styles from './index.module.css'
 //TODO: Add styling to page
 const Index: React.FC = () => {
   //
@@ -100,109 +100,137 @@ const Index: React.FC = () => {
         return `System message: ${msg.type}`;
     }
   };
-
-  if (!lobbyDetails) {
-    return (
-      <div>
-        <div>
-          <h2>Loading Lobby Details...</h2>
-          <p>Please wait while we connect you to the game</p>
-        </div>
-      </div>
-    );
+  function handleRejoinLobby(){
+    //Navigate the user back to the home screen
+    navigate('/', {replace:true});
   }
+if (!lobbyDetails) {
+  return (
+    <div className={""}>
+      <div className={""}></div>
+      <div className={styles.loadingContent}>
+        <h2 className={styles.loadingTitle}>CONNECTING TO ARENA...</h2>
+        <p className={styles.loadingText}>Initializing combat systems</p>
+      </div>
+      <p className="mt-1">
+          <button className={styles.submitButton} onClick={handleRejoinLobby}>Rejoin lobby</button>
+        </p>
+    </div>
+  );
+}
 
- return (
-    <div className="min-h-screen p-4 md:p-6">
-      {/* Header Section */}
-      <div className="rounded-xl p-6 mb-6 shadow-2xl">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold">
-              Game Lobby
-            </h1>
-            <p className="mt-1">Waiting for players to join...</p>
-          </div>
-          <div className="mt-4 md:mt-0 text-center md:text-right">
-            <div className="text-sm">Lobby Code</div>
-            <div className="text-2xl font-mono font-bold px-4 py-2 rounded-lg mt-1">
-              {lobby?.code}
-            </div>
-          </div>
+if(lobbyDetails.game_status === 'game_over'){
+  return (
+    <>
+    </>
+  )
+}
+const isSpectator = user?.role === 'spectator';
+
+return (
+  <div className={`${""} ${isSpectator ? styles.spectatorView : ''}`}>
+    <div className={""}></div>
+    
+    {isSpectator && (
+      <div className={styles.spectatorBadge}>SPECTATOR MODE</div>
+    )}
+
+    {/* Header Section */}
+    <div className={styles.headerContainer}>
+      <div className={styles.headerContent}>
+        <div>
+          <h1 className={styles.headerTitle}>LASER SHOOTER LOBBY</h1>
+          <p className={styles.headerSubtitle}>
+            {isSpectator ? 'OBSERVER PROTOCOL ACTIVE' : 'AWAITING COMBATANTS'}
+          </p>
         </div>
-        
-        <div className="mt-4 flex items-center">
-          <div className={`h-3 rounded-full w-3 mr-2`}></div>
-          <span className="text-sm">
-            Status: {lobbyDetails.game_status}
-          </span>
+        <div className={styles.lobbyCodeContainer}>
+          <div className={styles.lobbyCodeLabel}>LOBBY CODE</div>
+          <div className={styles.lobbyCodeDisplay}>
+            {lobby?.code}
+          </div>
         </div>
       </div>
+      
+      <div className={styles.statusContainer}>
+        <div className={`${styles.statusIndicator} ${styles[lobbyDetails.game_status]}`}></div>
+        <span className={styles.statusText}>
+          SYSTEM STATUS: {lobbyDetails.game_status.toUpperCase()}
+        </span>
+        <button 
+          onClick={handleRejoinLobby}
+          className={styles.rejoinLobby}
+        >
+          REJOIN
+        </button>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Teams Section */}
-        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {lobbyDetails.teams.map((team: Team, idx: number) => (
-            <div key={team.id} className="rounded-xl p-5 shadow-2xl">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold">
-                  Team {team.color} {team.shape}
-                </h3>
-                <div className="px-3 py-1 rounded-full text-sm">
-                  {team.players?.length || 0}/{team.max_players}
-                </div>
-              </div>
-              
-              <div className="mb-4 flex items-center">
-                <div className="font-bold text-lg mr-2">Score: {team.score ?? 0}</div>
-                <div className="text-sm ml-auto">
-                  Needs: {team.max_players - (team.players?.length || 0)}
-                </div>
-              </div>
-              
-              <div className="rounded-lg p-3 mb-3">
-                <h4 className="text-sm font-semibold mb-2 pb-1">Players</h4>
-                <div className="space-y-2">
-                  {(team.players ?? []).map((player: any) => (
-                    <div key={player.id} className="flex items-center p-2 rounded-md">
-                      <div className="w-2 h-2 rounded-full mr-2"></div>
-                      <div>
-                        <div className="font-medium">{player.name}</div>
-                        <div className="text-xs">ID: {player.id}</div>
-                      </div>
-                    </div>
-                  ))}
-                  {(!team.players || team.players.length === 0) && (
-                    <div className="text-center py-3">Waiting for players...</div>
-                  )}
-                </div>
+
+
+    </div>
+
+    <div className={styles.gridContainer}>
+      {/* Teams Section */}
+      <div className={styles.teamsContainer}>
+        {lobbyDetails.teams.map((team: Team, idx: number) => (
+          <div key={team.id} className={styles.teamCard}>
+            <div className={styles.teamHeader}>
+              <h3 className={styles.teamTitle}>
+                SQUAD {team.color.toUpperCase()} • {team.shape}
+              </h3>
+              <div className={styles.teamPlayerCount}>
+                {team.players?.length || 0}/{team.max_players}
               </div>
             </div>
-          ))}
-        </div>
+            
+            <div className={styles.teamScoreContainer}>
+              <div className={styles.teamScore}>POWER: {team.score ?? 0}</div>
+              <div className={styles.teamNeeds}>
+                REQUIRES: {team.max_players - (team.players?.length || 0)}
+              </div>
+            </div>
+            
+            <div className={styles.playersContainer}>
+              <h4 className={styles.playersTitle}>COMBAT ROSTER</h4>
+              <div className={styles.playersList}>
+                {(team.players ?? []).map((player: any) => (
+                  <div key={player.id} className={styles.playerItem}>
+                    <div className={styles.playerIndicator}></div>
+                    <div>
+                      <div className={styles.playerName}>{player.name}</div>
+                      <div className={styles.playerId}>ID: {player.id}</div>
+                    </div>
+                  </div>
+                ))}
+                {(!team.players || team.players.length === 0) && (
+                  <div className={styles.emptyPlayers}>AWAITING COMBATANTS</div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-        {/* Messages Section for players joining the lobby*/}
-        {lobbyDetails.game_status in ["running","game_over"] &&(
-        <div className="rounded-xl overflow-hidden shadow-2xl">
-          <div className="px-5 py-3">
-            <h3 className="text-lg font-bold flex items-center">
-              <span className="mr-2">💬</span> Lobby messages
-            </h3>
+      {/* Messages Section - Only for players */}
+      {!isSpectator && (
+        <div className={styles.messagesContainer}>
+          <div className={styles.messagesHeader}>
+            <h3 className={styles.messagesTitle}>COMMS CHANNEL</h3>
           </div>
           
-          <div className="h-96 overflow-y-auto p-4">
+          <div className={styles.messagesContent}>
             {messages.length === 0 ? (
-              <div className="text-center py-8 flex flex-col items-center">
-                <p>Welcome to the lobby!</p>
-                <p className="text-sm mt-1">Messages will appear here</p>
+              <div className={styles.emptyMessages}>
+                <p>COMMUNICATIONS ONLINE</p>
+                <p className="text-sm mt-2">Awaiting transmission...</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div>
                 {messages.map((msg, index) => (
-                  <div key={index} className="animate-fadeIn">
-                    <div className="text-sm p-3 rounded-lg border-l-4">
+                  <div key={index} className={styles.messageItem}>
+                    <div className={styles.messageContent}>
                       <div>{formatMessage(msg)}</div>
-                      <div className="text-xs mt-1">Just now</div>
+                      <div className={styles.messageTime}>[{new Date().toLocaleTimeString()}]</div>
                     </div>
                   </div>
                 ))}
@@ -211,26 +239,25 @@ const Index: React.FC = () => {
             )}
           </div>
           
-          <div className="border-t p-3">
-            <div className="text-xs text-center">
-             Laser shooter • {lobbyDetails.teams.reduce((acc, team) => acc + (team.players?.length || 0), 0)} players online
+          <div className={styles.messagesFooter}>
+            <div className={styles.footerText}>
+              LASER_SHOOTER_PROTOCOL • {lobbyDetails.teams.reduce((acc, team) => acc + (team.players?.length || 0), 0)} COMBATANTS ONLINE
             </div>
           </div>
         </div>
       )}
-      </div>
-      
-      {/* Game Start Indicator */}
-      {lobbyDetails.game_status === "starting" && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="p-8 rounded-xl text-center animate-pulse">
-            <h2 className="text-2xl font-bold mb-2">Game Starting Soon!</h2>
-            <p>Get ready to play</p>
-          </div>
-        </div>
-      )}
     </div>
-  );
-};
-
+    
+    {/* Game Start Overlay */}
+    {lobbyDetails.game_status === "starting" && (
+      <div className={styles.gameStartOverlay}>
+        <div className={styles.gameStartContent}>
+          <h2 className={styles.gameStartTitle}>ENGAGEMENT IMMINENT!</h2>
+          <p className={styles.gameStartText}>Prepare for combat sequence</p>
+        </div>
+      </div>
+    )}
+  </div>
+);
+}
 export default Index;
