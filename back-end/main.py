@@ -80,17 +80,22 @@ async def get_lobby_details(lobby_code: str):
 @app.post("/LeaveTeam/{lobby_code}")
 async def leave_team(lobby_code: str, player: Player):
     if not l_manager.lobby_code_exists(lobby_code):
-        raise HTTPException(status_code=404, detail="Lobby not found.")
+        return {"message" : "Lobby code does not exist."} #
     
     team = l_manager.get_team_from_lobby(lobby_code, player.team_id)
     if not team:
-        raise HTTPException(status_code=404, detail="Team not found in this lobby.")
+        return {"message" : "Team does not exist."}
 
     if player not in team.players:
-        raise HTTPException(status_code=404, detail="Player not found in this team.")
+        return {"message" : "Player not in the team."}
     
     #remove th eplayer
     team.players.remove(player)
+
+    #if there are no player on the team, delete the lobby session
+    if len(team.players) == 0:
+        l_manager.remove_lobby(lobby_code)
+
     return {"message": f"Left {player.team_id} in lobby {lobby_code}"}
 
 

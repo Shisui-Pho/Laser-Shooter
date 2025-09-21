@@ -99,3 +99,7 @@ class LobbyManager:
         return teamA, teamB
     def is_lobby_active(self, lobby_code: str)-> bool:
         return lobby_code in self.active_lobbies
+    
+    def remove_lobby(self, lobby_code: str):
+        if lobby_code in self.lobbies:
+            del self.lobbies[lobby_code]
