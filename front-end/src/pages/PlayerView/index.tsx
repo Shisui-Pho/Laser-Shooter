@@ -5,10 +5,11 @@ import ColorDetectionService, { type DetectedColor } from "../../services/ColorD
 import WebSocketService, { type GameMessage } from "../../services/WebSocketService";
 import { useGame } from "../../context/GameContext";
 import type { Team } from "../../models/User";
+import "./index.css";
 
 
 function Index() {
-//Video and canvas refs
+  //Video and canvas refs
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -18,13 +19,28 @@ function Index() {
   const [error, setError] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState<number | null>(null);
-  const [status, setStatus] = useState<string>("Waiting...");
+  const [status, setStatus] = useState<string>("");
   const [enemyScore, setEnemyScore]= useState(0);
   const [isReloading, setIsReloading] = useState<boolean>(false);
   const [reloadProgress, setReloadProgress] = useState<number>(0);
+
+  // Reference for the status message timeout
+  const statusTimeoutRef = useRef<number | null>(null);
   
   //Access user and lobby form the game context
   const { user, lobby } = useGame();
+
+  //Helper function to set and clear the status message
+  const updateStatus = (message: string) => {
+    if (statusTimeoutRef.current) {
+      clearTimeout(statusTimeoutRef.current);
+    }
+    setStatus(message);
+    statusTimeoutRef.current = setTimeout(() => {
+      setStatus("");
+    }, 1000);
+  };
+
 
   //Start camera
   useEffect(() => {
@@ -78,9 +94,9 @@ function Index() {
       if (Array.isArray(lobby.teams)) {
         if (Array.isArray(lobby.colors) && lobby.teams.length === lobby.colors.length) {
           // const teams = lobby.teams.map((id, idx) => ({
-          //   id,
-          //   color: lobby.colors[idx],
-          //   shape: lobby.shape ?? null,
+          // 	 id,
+          // 	 color: lobby.colors[idx],
+          // 	 shape: lobby.shape ?? null,
           // })) as Team[];
 
           const teams = lobby.teams;
@@ -125,8 +141,8 @@ function Index() {
 
     //Disconnect websocket when component unmounts
     // return () => {
-    //   console.log("Disconnecting WebSocket");
-    //   WebSocketService.disconnect();
+    // 	 console.log("Disconnecting WebSocket");
+    // 	 WebSocketService.disconnect();
     // };
   }, [user?.teamId, lobby?.code, lobby?.teams, lobby?.colors, lobby?.shape]);
 
@@ -137,14 +153,14 @@ function Index() {
     switch (msg.type) {
       case "hit":
         setScore((s) => s + 15);
-        setStatus("Hit!");
+        updateStatus("Hit!");
         break;
       case "shot":
         setEnemyScore((s)=> s + 15);
-        setStatus("Got hit");
+        updateStatus("Got hit");
         break;
       case "missed_shot":
-        setStatus("Missed");
+        updateStatus("Missed");
         break;
       case "timer_report":
         if (msg.payload?.time_remaining !== undefined) {
@@ -153,15 +169,15 @@ function Index() {
         break;
       case "game_over":
         if (msg.payload?.winning_team_name) {
-          setStatus(`Game Over!\nWinner: ${msg.payload.winning_team_name}`);
+          updateStatus(`Game Over!\nWinner: ${msg.payload.winning_team_name}`);
         }
         break;
       case "start_game":
-        setStatus("Game Started!");
+        updateStatus("Game Started!");
         break;
       case "join":
         if (msg.payload) {
-          setStatus(`${msg.payload.team_name}: ${msg.payload.members_remaining} slots left`);
+          updateStatus(`${msg.payload.team_name}: ${msg.payload.members_remaining} slots left`);
         }
         break;
       default:
@@ -176,7 +192,7 @@ function Index() {
 
     //Disable button and start reloading
     setIsReloading(true);
-    setStatus("Reloading...");
+    updateStatus("Reloading...");
     setReloadProgress(0);
 
     //Simulate reload progress
@@ -193,8 +209,8 @@ function Index() {
 
     //Disabled crosshair color from stopping shots(temporary thing to make life easier when debugging)
     /*if (crosshairColor !== "red") {
-      setStatus("Can't shoot — no enemy detected");
-      return;
+    	 setStatus("Can't shoot — no enemy detected");
+    	 return;
     }*/
 
     //Get current frame and make it a base64 image
@@ -206,127 +222,63 @@ function Index() {
 
     //Validate that enemy color is defined before shooting
     if (!shootColor) {
-      setStatus("Error: Enemy color not defined");
+      updateStatus("Error: Enemy color not defined");
       return;
     }
 
     //Send a shot to the server via the websocket service
     WebSocketService.sendShot(imageBase64, user, shootColor);
-    setStatus("Shot fired!");
+    updateStatus("Shot fired!");
     //Print The base64, for debugging
-    console.log("Base 64 data: "+imageBase64)
+    console.log("Base 64 data: " + imageBase64)
   };
 
   return (
     //Styling here is temporary for testing and development
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      {error && <div style={{ color: "red" }}>{error}</div>}
+    <div className="game-container">
+      {error && <div className="error-message">{error}</div>}
 
       {/* Video feed */}
       <video ref={videoRef} autoPlay playsInline muted className="video-feed" />
-      <canvas ref={canvasRef} width={640} height={480} style={{ display: "none" }} />
+      <canvas ref={canvasRef} width={640} height={480} className="hidden-canvas" />
 
       {/* Crosshair overlay */}
       <Crosshair color={crosshairColor} />
 
       {/* HUD - Score */}
-      <div
-        style={{
-          position: "absolute",
-          top: 10,
-          left: 10,
-          color: "white",
-          background: "rgba(0,0,0,0.5)",
-          padding: "5px",
-          borderRadius: "8px",
-        }}
-      >
+      <div className="hud-container top-left">
         Score: {score}
       </div>
 
-      <div
-        style={{
-          position: "absolute",
-          top: 60,
-          left: 10,
-          color: "white",
-          background: "rgba(0,0,0,0.5)",
-          padding: "5px",
-          borderRadius: "8px",
-        }}
-      >
-        Enemy Score: {enemyScore}
+      <div className="hud-container top-left mt-12 text-neon-red-400">
+         <span className="text-neon-red-400">Enemy Score: {enemyScore}</span>
       </div>
 
       {/* HUD - Timer */}
       {timer !== null && (
-        <div
-          style={{
-            position: "absolute",
-            top: 10,
-            right: 10,
-            color: "yellow",
-            background: "rgba(0,0,0,0.5)",
-            padding: "5px",
-            borderRadius: "8px",
-          }}
-        >
+        <div className="hud-container top-right text-neon-red-400">
           Time: {timer}s
         </div>
       )}
 
       {/* HUD - Status */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 80,
-          left: "50%",
-          transform: "translateX(-50%)",
-          color: "lime",
-          background: "rgba(0,0,0,0.5)",
-          padding: "5px",
-          borderRadius: "8px",
-        }}
-      >
-        {status}
-      </div>
+      {status && (
+        <div className="hud-container top-center">
+          {status}
+        </div>
+      )}
 
       {/* Shoot button */}
-      <div style={{ 
-        position: "absolute", 
-        bottom: 20, 
-        left: "50%", 
-        transform: "translateX(-50%)",
-        width: 80,
-        height: 80
-      }}>
+      <div className="shoot-button-container">
         <button
           onClick={shoot}
           disabled={isReloading}
-          style={{
-            width: "100%",
-            height: "100%",
-            borderRadius: "50%",
-            backgroundColor: isReloading ? "gray" : "red",
-            color: "white",
-            border: "none",
-            fontSize: "22px",
-            cursor: isReloading ? "not-allowed" : "pointer",
-            position: "relative",
-            overflow: "hidden"
-          }}
+          className={`shoot-button ${isReloading ? 'reloading' : ''}`}
         >
           Shoot
           {isReloading && (
             <svg
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                transform: "rotate(-90deg)",
-              }}
+              className="reload-svg"
               viewBox="0 0 100 100"
             >
               <circle

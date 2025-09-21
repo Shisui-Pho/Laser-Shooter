@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { lobbyService } from "../services/LobbyServices.ts";
 import { useNavigate } from 'react-router-dom';
+import "../pages/Home/index.css";
 
 //Component for entering or creating a game lobby
 const EnterLobby: React.FC = () => {
@@ -80,23 +81,23 @@ const EnterLobby: React.FC = () => {
       //Handle join will join the user
 
       // const joinResponse = await lobbyService.joinLobby(
-      //   createResponse.lobby_code,
-      //   user.callName
+      // 	 createResponse.lobby_code,
+      // 	 user.callName
       // );
 
       // //Update user data with backend information
       // if (joinResponse && joinResponse.user) {
-      //   setUser({
-      //     ...user,
-      //     id: joinResponse.user.id,        
-      //     teamId: joinResponse.user.team_id,
-      //     hits: joinResponse.user.hits,
-      //   });
+      // 	 setUser({
+      // 	 	 ...user,
+      // 	 	 id: joinResponse.user.id, 		
+      // 	 	 teamId: joinResponse.user.team_id,
+      // 	 	 hits: joinResponse.user.hits,
+      // 	 });
       // }
     }
   };
 
-  //Method for spectators to spectate a lobby
+  //Method for spectators to watch a lobby
   const handleSpectate = async () => {
     if (!code) return;
 
@@ -118,49 +119,56 @@ const EnterLobby: React.FC = () => {
   };
 
   return (
-    <div>
-      {/*Welcome message displaying user's call name and role */}
-      <h2>
-        Welcome {user?.callName} ({user?.role})
-      </h2>
+    <div className="form-container">
+      <div className="form-wrapper">
+        {/*Welcome message displaying user's call name and role */}
+        <h2 className="form-title">
+          <span className="tracking-wide">Welcome {user?.callName} ({user?.role})</span>
+        </h2>
+        <div className="title-accent" />
 
-      {/*Field for entering an existing lobby code*/}
-      <input
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        placeholder="Enter Lobby Code"
-      />
-      
-      {/*Button to join an existing lobby*/}
-      {user?.role === 'player' && (
-        <button onClick={handleJoin}>Join Lobby</button>
-      )}
-      
-
-      {/*Button for spectators to watch a lobby*/}
-      {user && user.role === "spectator" && (
-        <button onClick={handleSpectate} style={{ marginLeft: "10px" }}>
-          Spectate Lobby
-        </button>
-      )}
-
-      {/*Lobby creation section*/}
-      {user && user.role === "player" && (
-        <div style={{ marginTop: "1rem" }}>
-          {/*Input for specifying maximum players in the new lobby */}
+        {/*Field for entering an existing lobby code*/}
+        <div className="input-group">
           <input
-            type="number"
-            min={2}//Minimum 2 players(teams need at least 1 player each)
-            step={2}//Even numbers only(to maintain balanced teams)
-            value={maxPlayers}
-            onChange={(e) => setMaxPlayers(Number(e.target.value))}
-            placeholder="Max Players (even number)"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Enter Lobby Code"
+            className="input-field"
           />
-          
-          {/*Button to create a new lobby with specified max players*/}
-          <button onClick={handleCreate}>Create Lobby</button>
         </div>
-      )}
+        
+        {/*Button to join an existing lobby*/}
+        {user?.role === 'player' && (
+          <button onClick={handleJoin} className="submit-button">Join Lobby</button>
+        )}
+        
+
+        {/*Button for spectators to watch a lobby*/}
+        {user && user.role === "spectator" && (
+          <button onClick={handleSpectate} className="submit-button">
+            Spectate Lobby
+          </button>
+        )}
+
+        {/*Lobby creation section*/}
+        {user && user.role === "player" && (
+          <div className="input-group">
+            {/*Input for specifying maximum players in the new lobby */}
+            <input
+              type="number"
+              min={2}//Minimum 2 players(teams need at least 1 player each)
+              step={2}//Even numbers only(to maintain balanced teams)
+              value={maxPlayers}
+              onChange={(e) => setMaxPlayers(Number(e.target.value))}
+              placeholder="Max Players (even number)"
+              className="input-field"
+            />
+            
+            {/*Button to create a new lobby with specified max players*/}
+            <button onClick={handleCreate} className="submit-button">Create Lobby</button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
