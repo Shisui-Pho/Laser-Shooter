@@ -6,8 +6,10 @@ import { GameProvider } from "./context/GameContext.tsx";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <GameProvider>
-      <App />
-    </GameProvider>
+    <div className="main-container">
+      <GameProvider>
+        <App />
+      </GameProvider>
+    </div>
   </StrictMode>
 )
