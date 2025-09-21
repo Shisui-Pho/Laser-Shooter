@@ -34,7 +34,7 @@
   animation: fade-in-out 1s ease-in-out forwards;
 }
 
-/* New keyframes for the status message fade effect */
+/* Keyframes for the status message fade effect */
 @keyframes fade-in-out {
   0% { opacity: 0; }
   25% { opacity: 1; }
