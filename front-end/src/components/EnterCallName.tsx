@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext.tsx";
 import type { Role } from "../models/User.ts";
+import "../pages/Home/index.css";
 
 interface Props {
   setSubmitted: (submitted:boolean) => void;
@@ -10,8 +11,8 @@ const EnterCallName: React.FC<Props> = ({setSubmitted}) => {
   const { setUser } = useGame();
 
   //Local form fields
-  const [name, setName] = useState("");         
-  const [role, setRole] = useState<Role>("player"); 
+  const [name, setName] = useState("");
+  const [role, setRole] = useState<Role>("player");
 
   //Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,26 +26,40 @@ const EnterCallName: React.FC<Props> = ({setSubmitted}) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/*Textbox for the player's name*/}
-      <label>Enter your name</label>
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="e.g. Galane"
-        required
-      />
+    <div className="form-container">
+      <form onSubmit={handleSubmit} className="form-wrapper">
+        <h1 className="form-title">
+          <span className="tracking-wide">Access Protocol</span>
+        </h1>
+        <div className="title-accent" />
 
-      {/*Dropdown for selecting player or spectator*/}
-      <label>Role:</label>
-      <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-        <option value="player">Player</option>
-        <option value="spectator">Spectator</option>
-      </select>
+        {/*Textbox for the player's name*/}
+        <div className="input-group">
+          <label htmlFor="name" className="input-label">Enter your name</label>
+          <input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Maverick"
+            required
+            className="input-field"
+          />
+        </div>
 
-      {/*Submit button*/}
-      <button type="submit">Enter Arena</button>
-    </form>
+        {/*Dropdown for selecting player or spectator*/}
+        <div className="input-group">
+          <label htmlFor="role" className="input-label">Role:</label>
+          <select id="role" value={role} onChange={(e) => setRole(e.target.value as Role)} className="select-field">
+            <option value="player" className="option-player">Player</option>
+            <option value="spectator" className="option-spectator">Spectator</option>
+          </select>
+        </div>
+
+        {/*Submit button*/}
+        <button type="submit" className="submit-button">Enter Arena</button>
+
+      </form>
+    </div>
   );
 };
 

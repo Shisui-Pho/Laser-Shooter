@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.game-container {
+  @apply relative h-screen w-screen overflow-hidden bg-black;
+}
+
+.video-feed {
+  @apply h-full w-full object-cover;
+}
+
+.hidden-canvas {
+  @apply hidden;
+}
+
+.hud-container {
+  @apply absolute rounded-lg bg-black bg-opacity-50 p-2 font-mono text-lg text-neon-green-400;
+  box-shadow: 0 0 10px rgba(96, 255, 81, 0.5);
+  border: 1px solid rgba(96, 255, 81, 0.5);
+}
+
+.top-left {
+  @apply left-4 top-4;
+}
+
+.top-right {
+  @apply right-4 top-4;
+}
+
+.top-center {
+  @apply left-1/2 top-4 -translate-x-1/2 transform text-center text-xl font-bold uppercase;
+  text-shadow: 0 0 5px rgba(96, 255, 81, 0.8);
+  animation: fade-in-out 1s ease-in-out forwards;
+}
+
+/* New keyframes for the status message fade effect */
+@keyframes fade-in-out {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.shoot-button-container {
+  @apply absolute bottom-8 left-1/2 -translate-x-1/2 transform;
+}
+
+.shoot-button {
+  @apply relative h-20 w-20 rounded-full border-2 border-neon-red-500 bg-black font-bold uppercase text-neon-red-500 shadow-lg transition-all duration-200 ease-in-out;
+  box-shadow: 0 0 15px #ff4d4d;
+  outline: none;
+}
+
+.shoot-button:hover:not(:disabled),
+.shoot-button:focus:not(:disabled) {
+  @apply scale-110;
+  box-shadow: 0 0 25px #ff4d4d, 0 0 50px rgba(255, 77, 77, 0.3), 0 0 10px #60ff51 !important;
+  outline: none !important;
+}
+
+.shoot-button:disabled {
+  @apply cursor-not-allowed border-gray-600 text-gray-400;
+  box-shadow: none;
+}
+
+.reloading .reload-svg {
+  animation: rotate-reload 1s linear infinite;
+}
+
+/* Keyframes for the reload animation */
+@keyframes rotate-reload {
+  from { transform: rotate(-90deg); }
+  to { transform: rotate(270deg); }
+}
+
+.reload-svg {
+  @apply absolute left-0 top-0 h-full w-full -rotate-90 transform;
+}

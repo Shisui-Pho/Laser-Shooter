@@ -6,7 +6,7 @@ function Index() {
   //
   const [submitted, setSubmitted] = useState(false);
   return (
-    <div>
+    <div className="hack-black-background">
       {!submitted && (
         <EnterCallName  setSubmitted = {setSubmitted}/>
       )}

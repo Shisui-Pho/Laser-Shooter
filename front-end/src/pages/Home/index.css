@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Tailwind classes for the neon theme */
+.form-container {
+  @apply flex min-h-screen items-center justify-center bg-zinc-950 p-4 font-mono text-zinc-200;
+}
+.hack-black-background {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999;
+}
+.form-wrapper {
+  @apply relative w-full max-w-sm rounded-lg border-2 border-neon-red-500 bg-zinc-900 p-6;
+  /* Add the pulse animation for the glow effect */
+  animation: pulse-glow-red 0.5s infinite alternate;
+}
+
+/* Keyframes for the glowing animation */
+@keyframes pulse-glow-red {
+  from {
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.5); /* Start with a subtle glow */
+  }
+  to {
+    box-shadow: 0 0 20px rgba(255, 77, 77, 0.8), 0 0 40px rgba(255, 77, 77, 0.5); /* End with an intense, layered glow */
+  }
+}
+
+.form-title {
+  @apply mb-6 border-b-2 border-neon-green-500 pb-2 text-center text-xl font-bold uppercase text-neon-green-400 sm:text-2xl;
+}
+
+.title-accent {
+  @apply absolute left-1/2 top-0 h-4 w-12 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-neon-green-500 shadow-glow-green;
+}
+
+.input-group {
+  @apply mb-6;
+}
+
+.input-label {
+  @apply mb-2 block text-sm uppercase tracking-widest text-zinc-400;
+}
+
+.input-field {
+  @apply w-full rounded-md border-2 border-zinc-700 bg-zinc-800 p-3 text-neon-green-400 placeholder-zinc-500 transition-all duration-300 focus:border-neon-red-500 focus:outline-none focus:ring-2 focus:ring-neon-red-500;
+}
+
+.select-field {
+  @apply w-full appearance-none rounded-md border-2 border-zinc-700 bg-zinc-800 p-3 text-neon-green-400 transition-all duration-300 focus:border-neon-red-500 focus:outline-none focus:ring-2 focus:ring-neon-red-500;
+}
+
+.option-player {
+  @apply bg-zinc-900 text-neon-green-400;
+}
+
+.option-spectator {
+  @apply bg-zinc-900 text-neon-red-400;
+}
+
+.submit-button {
+  @apply w-full rounded-lg bg-neon-green-500 py-3 font-bold uppercase tracking-widest text-zinc-950 shadow-glow-green transition-all duration-300 hover:bg-neon-green-400 focus:outline-none focus:ring-4 focus:ring-neon-green-500/50;
+}
+
+.bottom-accent-bar {
+  @apply absolute bottom-0 left-0 right-0 h-2 -translate-y-1/2 transform bg-neon-red-500 opacity-20;
+}

@@ -1,4 +1,4 @@
-import type { Lobby, } from "../models/User";
+import type { Lobby,User } from "../models/User";
 
 //We will have our api here, right now local host for testing
 const API="http://127.0.0.1:8000";
@@ -20,6 +20,11 @@ interface CreateLobbyResponse{
   colors:string[];
   shape:string;
   teams:any[];
+}
+
+//Leave Team response model
+interface LeaveTeamResponse{
+  message: string;
 }
 
 
@@ -62,4 +67,44 @@ export const lobbyService={
     }
   },
 
+  //Leave Team
+  leaveTeam: async (lobbyCode: string, user: User): Promise<void> => {
+    // Check if the user is authenticated before attempting to leave
+    if (!user || !user.id || !user.teamId) {
+      console.error("Cannot leave team: User or teamId is missing.");
+      throw new Error("User data is incomplete.");
+    }
+    
+    // Construct the URL for the leave team endpoint
+    const url = `${API}/LeaveTeam/${lobbyCode}`;
+    
+    // Prepare the request body. Send the full user object to match the API's expectation.
+    const requestBody = {
+      id: user.id,
+      name: user.callName,
+      team_id: user.teamId,
+      hits: user.hits,
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      // Handle the response from the server
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to leave team: ${response.status} ${response.statusText}. Details: ${JSON.stringify(errorData)}`);
+      }
+
+      console.log("Successfully left the team.");
+    } catch (error) {
+      console.error("Error leaving team:", error);
+      throw error;
+    }
+  },
 };
