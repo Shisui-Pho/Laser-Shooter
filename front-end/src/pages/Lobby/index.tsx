@@ -19,6 +19,7 @@ const Index: React.FC = () => {
     console.log('Fetched');
     const details = await lobbyService.getLobbyDetails(lobbyCode);
     if (details){
+      //console.log(details);
       setLobbyDetails(details);
     } 
   };
@@ -104,6 +105,13 @@ const Index: React.FC = () => {
     //Navigate the user back to the home screen
     navigate('/', {replace:true});
   }
+  
+  const formatTime = (seconds: number): string => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
 if (!lobbyDetails) {
   return (
     <div className={""}>
@@ -119,17 +127,17 @@ if (!lobbyDetails) {
   );
 }
 
-if(lobbyDetails.game_status === 'game_over'){
-  return (
-    <>
-    </>
-  )
-}
+// if(lobbyDetails.game_status === 'game_over'){
+//   return (
+//     <>
+//     </>
+//   )
+// }
 const isSpectator = user?.role === 'spectator';
 
 return (
   <div className={`${""} ${isSpectator ? styles.spectatorView : ''}`}>
-    <div className={""}></div>
+    {/* <div className={""}></div> */}
     
     {isSpectator && (
       <div className={styles.spectatorBadge}>SPECTATOR MODE</div>
@@ -164,7 +172,15 @@ return (
           REJOIN
         </button>
       </div>
-
+      {/* Time Remaining Section */}
+      {lobbyDetails.time_remaining && (
+        <div className={styles.timeContainer}>
+          <div className={styles.timeLabel}>MISSION TIME REMAINING</div>
+          <div className={styles.timeDisplay}>
+            {formatTime(lobbyDetails.time_remaining)}
+          </div>
+        </div>
+      )}
 
 
     </div>
