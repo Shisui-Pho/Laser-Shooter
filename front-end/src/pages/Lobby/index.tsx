@@ -6,6 +6,7 @@ import WebSocketService from "../../services/WebSocketService.ts";
 import type { GameMessage } from "../../services/WebSocketService.ts";
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.css'
+import GameOver from "../../components/GameOver.tsx";
 //TODO: Add styling to page
 const Index: React.FC = () => {
   //
@@ -263,7 +264,14 @@ return (
         </div>
       )}
     </div>
-    
+      
+    {/* Game Over Overlay for Spectators */}
+    {lobbyDetails.game_status === "game_over" && isSpectator && (
+      <GameOver 
+        lobbyDetails={lobbyDetails} user={null}
+      />
+    )}
+
     {/* Game Start Overlay */}
     {lobbyDetails.game_status === "starting" && (
       <div className={styles.gameStartOverlay}>
