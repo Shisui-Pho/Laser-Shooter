@@ -62,7 +62,8 @@ def to_lobby_details_json(lobby_code:str, lobby: Lobby):
         "colors": [teamA.color, teamB.color],
         "shape": teamA.shape, #the shapes are the same for both teams 
         "teams": [teamA, teamB],
-        "game_status": lobby.game_status}
+        "game_status": lobby.game_status,
+        "time_remaining": lobby.time_remaining}
 
 def to_lobby_creation_json(lobby_code:str, teamA: Team, teamB: Team, game_status: str = "not_started"):
     return {"lobby_code": lobby_code,

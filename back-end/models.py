@@ -41,6 +41,7 @@ class Team(BaseModel):
 class Lobby(BaseModel):
     teams: dict[str, Team]
     game_status:str = 'not_started'
+    time_remaining: int = 60;
 
 #Models for WebSocket messages
 class ShotHitPayload(BaseModel):

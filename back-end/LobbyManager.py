@@ -36,15 +36,17 @@ class LobbyManager:
         #message = Message(type="start_game",payload= None)
         #await self.c_manager.send_message_to_Lobby(lobby_code,message)
         #start the game
-        self.active_lobbies[lobby_code] = {"start_time": time.time() , "duration":60}
+        self.active_lobbies[lobby_code] = {"start_time": time.time() , "duration":60, "time_remaining" : 60}
         self.lobbies[lobby_code].game_status = 'running'
         
     async def game_timer_loop(self):
         while True:
             now = time.time()
             for lobby_code, lobby_det in self.active_lobbies.items():
+                #Calculate the time elapsed
                 elapsed = now - lobby_det["start_time"]
-                remaining = lobby_det["duration"] - elapsed
+                self.active_lobbies[lobby_code]["time_remaining"] = lobby_det["duration"] - elapsed
+                remaining = self.active_lobbies[lobby_code]["time_remaining"]
 
                 if remaining <= 0:
                     #game over broadcast
@@ -87,6 +89,8 @@ class LobbyManager:
     
     def get_lobby(self, lobby_code: str) -> Lobby | None:
         lobby = self.lobbies.get(lobby_code)
+        if lobby_code in self.active_lobbies and lobby:
+            lobby.time_remaining = self.active_lobbies[lobby_code]["time_remaining"]
         return lobby
     
     def get_teams_in_lobby(self,lobby_code:str) -> tuple[Team,Team]:
