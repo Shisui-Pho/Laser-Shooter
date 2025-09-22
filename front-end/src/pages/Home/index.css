@@ -6,7 +6,15 @@
 .form-container {
   @apply flex min-h-screen items-center justify-center bg-zinc-950 p-4 font-mono text-zinc-200;
 }
-
+.hack-black-background {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999;
+}
 .form-wrapper {
   @apply relative w-full max-w-sm rounded-lg border-2 border-neon-red-500 bg-zinc-900 p-6;
   /* Add the pulse animation for the glow effect */
