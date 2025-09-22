@@ -32,4 +32,5 @@ export interface Lobby {
   shape: string;
   teams: Team[];
   game_status: string;
+  time_remaining: number;
 }
