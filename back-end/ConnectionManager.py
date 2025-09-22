@@ -59,7 +59,7 @@ class ConnectionManager:
         if not lobby:
             return
         #disconnect everyone on the lobby
-        for team_id, team_connections in lobby.items():
+        for team_id, team_connections in list(lobby.items()):
             for connection in team_connections:
                 if connection.client_state == WebSocketState.CONNECTED:
                     await connection.close(code=1000)

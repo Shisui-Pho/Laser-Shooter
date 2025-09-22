@@ -42,7 +42,7 @@ class LobbyManager:
     async def game_timer_loop(self):
         while True:
             now = time.time()
-            for lobby_code, lobby_det in self.active_lobbies.items():
+            for lobby_code, lobby_det in list(self.active_lobbies.items()):
                 #Calculate the time elapsed
                 elapsed = now - lobby_det["start_time"]
                 self.active_lobbies[lobby_code]["time_remaining"] = lobby_det["duration"] - elapsed
@@ -59,6 +59,8 @@ class LobbyManager:
                     #broad-cast results
                     await self.c_manager.send_message_to_Lobby(lobby_code=lobby_code, message=message)
                     await self.c_manager.disconnect_lobby(lobby_code=lobby_code)
+                    #Remove the lobby
+                    del self.active_lobbies[lobby_code]
                 else:
                     #broadcast timer results
                     message = Message(type="timer_report",payload= TimerReportPayload(time_remaining=remaining))
