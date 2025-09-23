@@ -40,10 +40,6 @@ class ColorDetectionService {
   setTeamColors(myColor: string, enemyColor: string) {
     this.myTeamColor = myColor.toLowerCase();
     this.enemyTeamColor = enemyColor.toLowerCase();
-    console.log("Team colors set:", {
-      myTeam: this.myTeamColor,
-      enemy: this.enemyTeamColor,
-    });
   }
 
   //Convert rgb values to hsv

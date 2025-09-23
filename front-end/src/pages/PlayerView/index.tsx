@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import "./index.css";
 import { lobbyService } from "../../services/LobbyServices";
 import GameOver from "../../components/GameOver";
+import { useError } from "../../context/ErrorContext";
+
 
 function Index() {
   //Video and canvas refs
@@ -26,7 +28,8 @@ function Index() {
   const [isReloading, setIsReloading] = useState<boolean>(false);
   const [reloadProgress, setReloadProgress] = useState<number>(0);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
-  
+  const { addError } = useError();
+
   // Reference for the status message timeout
   const statusTimeoutRef = useRef<number | null>(null);
   
@@ -83,16 +86,10 @@ function Index() {
   useEffect(() => {
    //Return if the team id or lobby code is missing
    if (!user?.teamId || !lobby?.code) {
-    console.log("WS not connecting yet, missing teamId or lobby code", {
-     teamId: user?.teamId,
-     lobbyCode: lobby?.code,
-    });
+    addError("WS not connecting yet, missing teamId or lobby code","error");
     return;
    }
 
-   //Logs for debugging
-   console.log("Connecting to WebSocket with:", lobby.code, user.teamId);
-   console.log("Raw lobby object:", lobby);
 
    //Intialize vairabe for each team
    let myTeam: Team | undefined;
@@ -114,10 +111,7 @@ function Index() {
       myTeam = teams.find((t) => t.id === user.teamId);
       enemyTeam = teams.find((t) => t.id !== user.teamId);
      } else {
-      console.log("Mismatch between lobby.teams and lobby.colors", {
-       teams: lobby.teams,
-       colors: lobby.colors,
-      });
+      addError("Mismatch between lobby.teams and lobby.colors","error");
      }
     }
     //Handle object based team data
@@ -134,16 +128,8 @@ function Index() {
    if (myTeam && enemyTeam) {
     ColorDetectionService.setTeamColors(myTeam.color, enemyTeam.color);
     setShootColor(enemyTeam.color);
-    console.log("PlayerView team colors resolved:", {
-     myTeamColor: myTeam.color,
-     enemyTeamColor: enemyTeam.color,
-    });
    } else {
-    console.warn("Could not resolve team colors, fallback to default", {
-     myTeam,
-     enemyTeam,
-     lobby,
-    });
+    
    }
 
    //Establish a websocket connection using the websocket service
@@ -160,7 +146,6 @@ function Index() {
   //Handle messages from websocket
   let lobbyDetails: Lobby | null = lobby;
   async function handleGameMessage (msg: GameMessage) {
-   console.log("Received message:", msg);
 
    switch (msg.type) {
     case "hit":
@@ -198,7 +183,6 @@ function Index() {
      }
      break;
     default:
-     console.warn("Unhandled message type:", msg.type);
    }
   };
 
@@ -208,7 +192,6 @@ function Index() {
     await lobbyService.leaveTeam(lobby.code, user);
     navigate("/enterLobby");
    } catch (e) {
-    console.error("Failed to leave team", e);
     navigate("/", {replace:true});//We don't want the user to be able to go back
    }
   };
@@ -267,8 +250,6 @@ function Index() {
    //Send a shot to the server via the websocket service
    WebSocketService.sendShot(imageBase64, user, shootColor);
    updateStatus("Shot fired!");
-   //Print The base64, for debugging
-   console.log("Base 64 data: " + imageBase64)
   };
 
   return (

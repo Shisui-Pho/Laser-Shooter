@@ -6,6 +6,12 @@ export interface GameMessage {
   payload: any;
 }
 
+//Production websocket
+const wsUrl = import.meta.env.VITE_WS_URL;
+
+//Local websocket
+//const wsUrl = "ws://127.0.0.1:8000"
+
 //Websocket class
 class WebSocketService {
   private socket: WebSocket | null = null;
@@ -22,17 +28,15 @@ class WebSocketService {
     if (this.socket) {
       return;
     }
-    this.socket = new WebSocket(`ws://127.0.0.1:8000/ws/${lobbyCode}/${teamId}/${userId}`);
+    this.socket = new WebSocket(`${wsUrl}/ws/${lobbyCode}/${teamId}/${userId}`);
 
     this.socket.onopen = () => {
-      console.log("Connected to WebSocket");
     };
     this.messageHandler = onMessage;
 
     //Lets parse the websocket message
     this.socket.onmessage = (event) => {
       try {
-        console.log("Raw WebSocket message:", event.data);
 
         //Get the raw message from websocket
         let message: any = JSON.parse(event.data);
@@ -44,20 +48,17 @@ class WebSocketService {
 
         //Return if the message is invalid
         if (!message || typeof message !== "object" || !("type" in message)) {
-          console.warn("WebSocket: Invalid message:", message);
           return;
         }
 
         //If we failed to parse the message, print the error in console
         this.messageHandler(message as GameMessage);
       } catch (err) {
-        console.error("Failed to parse WebSocket message", err);
       }
     };
 
     //Close the socket connection 
     this.socket.onclose = () => {
-      console.log("Disconnected from WebSocket");
     };
   }
 
@@ -85,12 +86,10 @@ class WebSocketService {
     color: color
   };
 
-  console.log("Sending shot:", shotData);
   
   try {
     this.socket.send(JSON.stringify(shotData));
   } catch (error) {
-    console.error("Error sending shot:", error);
   }
 }
 
