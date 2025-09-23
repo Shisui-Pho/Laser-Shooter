@@ -1,0 +1,112 @@
+.error-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+.error-toast {
+  @apply fixed top-4 left-1/2 transform -translate-x-1/2 
+         min-w-80 max-w-md rounded-lg border-2 bg-zinc-900 p-4 
+         backdrop-blur-sm transition-all duration-300;
+  z-index: 99999 !important;
+  pointer-events: auto;
+  animation: pulse-glow-red 0.5s infinite alternate;
+}
+
+.error-toast-enter {
+  animation: slide-in 0.3s ease-out, pulse-glow-red 0.5s infinite alternate;
+}
+
+.error-toast-exit {
+  animation: slide-out 0.3s ease-in forwards;
+}
+
+.error-toast-content {
+  @apply flex items-center justify-between space-x-3;
+}
+
+.error-icon {
+  @apply text-xl flex-shrink-0;
+}
+
+.error-message {
+  @apply flex-1 text-sm font-mono text-zinc-200;
+  text-shadow: 0 0 5px currentColor;
+}
+
+.error-close-button {
+  @apply flex-shrink-0 w-6 h-6 rounded-full bg-zinc-800 
+         border border-zinc-600 text-zinc-400 text-xs 
+         flex items-center justify-center 
+         transition-all duration-200 
+         hover:bg-red-500 hover:text-zinc-950 
+         hover:border-red-400;
+}
+
+/* Keyframes for slide animations */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -100%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes slide-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -100%);
+  }
+}
+
+/* Custom glow variations */
+.error-toast.border-red-500 {
+  animation: pulse-glow-red 0.5s infinite alternate;
+}
+
+.error-toast.border-yellow-500 {
+  animation: pulse-glow-yellow 0.5s infinite alternate;
+}
+
+.error-toast.border-green-500 {
+  animation: pulse-glow-green 0.5s infinite alternate;
+}
+
+/* All keyframes for glowing effects */
+@keyframes pulse-glow-red {
+  from {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 0 40px rgba(239, 68, 68, 0.5);
+  }
+}
+
+@keyframes pulse-glow-yellow {
+  from {
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.8), 0 0 40px rgba(234, 179, 8, 0.5);
+  }
+}
+
+@keyframes pulse-glow-green {
+  from {
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 40px rgba(34, 197, 94, 0.5);
+  }
+}
