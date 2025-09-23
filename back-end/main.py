@@ -25,12 +25,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-#CORS configuration: allow requests from any origin (temp for development)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],#TODO: Change this to specific origins in production
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=[
+        "https://ufs-wil-pg.vercel.app"
+    ],
+    allow_credentials=False, #TODO: In future, authentication may be needed:) 
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
