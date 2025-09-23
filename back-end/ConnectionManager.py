@@ -22,8 +22,10 @@ class ConnectionManager:
         self.active_connections[lobby_code][team_name].append(websocket)
 
     def disconnect(self, lobby_code: str, team_name: str, websocket: WebSocket):
-
-        self.active_connections[lobby_code][team_name].remove(websocket)
+        if lobby_code in self.active_connections and team_name in self.active_connections[lobby_code]:
+            self.active_connections[lobby_code][team_name].remove(websocket)
+        else:
+            return
         
         #If the team has no more active connections, remove the team entry
         if not self.active_connections[lobby_code][team_name]:
@@ -59,7 +61,7 @@ class ConnectionManager:
         if not lobby:
             return
         #disconnect everyone on the lobby
-        for team_id, team_connections in lobby.items():
+        for team_id, team_connections in list(lobby.items()):
             for connection in team_connections:
                 if connection.client_state == WebSocketState.CONNECTED:
                     await connection.close(code=1000)

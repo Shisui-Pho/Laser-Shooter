@@ -42,7 +42,8 @@ const EnterLobby: React.FC = () => {
             colors: lobbyDetails.colors || [],
             shape: lobbyDetails.shape || "",
             teams: lobbyDetails.teams || [],
-            game_status: lobbyDetails.game_status
+            game_status: lobbyDetails.game_status, 
+            time_remaining: 60
           });
         }
         //redirect to the lobby waiting room
@@ -71,7 +72,8 @@ const EnterLobby: React.FC = () => {
         colors: createResponse.colors,
         shape: createResponse.shape,
         teams: createResponse.teams,
-        game_status: "not_started"
+        game_status: "not_started", 
+        time_remaining: 60
       });
 
       //Update local state with the new lobby code
@@ -110,7 +112,8 @@ const EnterLobby: React.FC = () => {
         colors: lobbyDetails.colors || [],
         shape: lobbyDetails.shape || "",
         teams: lobbyDetails.teams || [],
-        game_status: lobbyDetails.game_status || "not_started"
+        game_status: lobbyDetails.game_status || "not_started", 
+        time_remaining:60
       });
 
       //Navigate to lobby screen

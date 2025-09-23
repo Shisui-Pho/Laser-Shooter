@@ -415,3 +415,16 @@
          transition-all duration-300 hover:bg-neon-green-400 focus:outline-none 
          focus:ring-4 focus:ring-neon-green-500/50;
 }
+
+/* .timeRemaining {
+  @apply flex items-center gap-2;
+}
+
+.timeLabel {
+  @apply text-sm text-zinc-400 uppercase tracking-widest;
+}
+
+.timeDisplay {
+  @apply font-mono font-bold text-neon-red-400 px-3 py-1 rounded 
+         bg-zinc-900 border border-neon-red-500;
+} */

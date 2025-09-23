@@ -4,12 +4,11 @@ import Crosshair from "../../widgets/Crosshair";
 import ColorDetectionService, { type DetectedColor } from "../../services/ColorDetectionService";
 import WebSocketService, { type GameMessage } from "../../services/WebSocketService";
 import { useGame } from "../../context/GameContext";
-import type { Team } from "../../models/User";
+import type { Lobby, Team } from "../../models/User";
 import { useNavigate } from "react-router-dom";
 import "./index.css";
 import { lobbyService } from "../../services/LobbyServices";
-import EnterLobby from "../../components/EnterLobby";
-
+import GameOver from "../../components/GameOver";
 
 function Index() {
   //Video and canvas refs
@@ -27,7 +26,7 @@ function Index() {
   const [isReloading, setIsReloading] = useState<boolean>(false);
   const [reloadProgress, setReloadProgress] = useState<number>(0);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
-
+  
   // Reference for the status message timeout
   const statusTimeoutRef = useRef<number | null>(null);
   
@@ -159,7 +158,8 @@ function Index() {
   }, [user?.teamId, lobby?.code, lobby?.teams, lobby?.colors, lobby?.shape]);
 
   //Handle messages from websocket
-  const handleGameMessage = (msg: GameMessage) => {
+  let lobbyDetails: Lobby | null = lobby;
+  async function handleGameMessage (msg: GameMessage) {
    console.log("Received message:", msg);
 
    switch (msg.type) {
@@ -182,6 +182,10 @@ function Index() {
     case "game_over":
      if (msg.payload?.winning_team_name) {
       updateStatus(`Game Over!\nWinner: ${msg.payload.winning_team_name}`);
+      setIsGameOver(true);
+      if(lobby){
+        lobbyDetails = await lobbyService.getLobbyDetails(lobby?.code)
+      }
      }
      setIsGameOver(true);
      break;
@@ -205,7 +209,7 @@ function Index() {
     navigate("/enterLobby");
    } catch (e) {
     console.error("Failed to leave team", e);
-    navigate("/enterLobby");
+    navigate("/", {replace:true});//We don't want the user to be able to go back
    }
   };
 
@@ -329,6 +333,12 @@ function Index() {
       )}
      </button>
     </div>
+     {/* Game Over Overlay for Spectators */}
+    {isGameOver && lobbyDetails && (
+      <GameOver 
+        lobbyDetails={lobbyDetails} user={user}
+      />
+    )}
    </div>
   );
 }
