@@ -4,11 +4,13 @@ import Crosshair from "../../widgets/Crosshair";
 import ColorDetectionService, { type DetectedColor } from "../../services/ColorDetectionService";
 import WebSocketService, { type GameMessage } from "../../services/WebSocketService";
 import { useGame } from "../../context/GameContext";
-import type { Team } from "../../models/User";
+import type { Lobby, Team } from "../../models/User";
 import { useNavigate } from "react-router-dom";
 import "./index.css";
 import { lobbyService } from "../../services/LobbyServices";
+import GameOver from "../../components/GameOver";
 import { useError } from "../../context/ErrorContext";
+
 
 function Index() {
   //Video and canvas refs
@@ -84,7 +86,7 @@ function Index() {
   useEffect(() => {
    //Return if the team id or lobby code is missing
    if (!user?.teamId || !lobby?.code) {
-    addError("Websocket not connecting yet, missing teamId or lobby code")
+    addError("WS not connecting yet, missing teamId or lobby code","error");
     return;
    }
 
@@ -127,6 +129,7 @@ function Index() {
     ColorDetectionService.setTeamColors(myTeam.color, enemyTeam.color);
     setShootColor(enemyTeam.color);
    } else {
+    
    }
 
    //Establish a websocket connection using the websocket service
@@ -141,7 +144,8 @@ function Index() {
   }, [user?.teamId, lobby?.code, lobby?.teams, lobby?.colors, lobby?.shape]);
 
   //Handle messages from websocket
-  const handleGameMessage = (msg: GameMessage) => {
+  let lobbyDetails: Lobby | null = lobby;
+  async function handleGameMessage (msg: GameMessage) {
 
    switch (msg.type) {
     case "hit":
@@ -163,6 +167,10 @@ function Index() {
     case "game_over":
      if (msg.payload?.winning_team_name) {
       updateStatus(`Game Over!\nWinner: ${msg.payload.winning_team_name}`);
+      setIsGameOver(true);
+      if(lobby){
+        lobbyDetails = await lobbyService.getLobbyDetails(lobby?.code)
+      }
      }
      setIsGameOver(true);
      break;
@@ -184,8 +192,7 @@ function Index() {
     await lobbyService.leaveTeam(lobby.code, user);
     navigate("/enterLobby");
    } catch (e) {
-    addError("Failed to leave team","error");
-    navigate("/enterLobby");
+    navigate("/", {replace:true});//We don't want the user to be able to go back
    }
   };
 
@@ -307,6 +314,12 @@ function Index() {
       )}
      </button>
     </div>
+     {/* Game Over Overlay for Spectators */}
+    {isGameOver && lobbyDetails && (
+      <GameOver 
+        lobbyDetails={lobbyDetails} user={user}
+      />
+    )}
    </div>
   );
 }
