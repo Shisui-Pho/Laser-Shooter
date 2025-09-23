@@ -1,7 +1,11 @@
 import type { Lobby,User } from "../models/User";
 
-//We will have our api here, right now local host for testing
-const API="http://127.0.0.1:8000";
+//Production API
+const API="import.meta.env.VITE_API_URL";
+
+//Local API
+//const API="http://127.0.0.1:8000";
+
 
 //Join Lobby repsonse model
 interface JoinLobbyResponse{

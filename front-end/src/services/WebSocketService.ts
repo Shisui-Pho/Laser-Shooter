@@ -6,6 +6,12 @@ export interface GameMessage {
   payload: any;
 }
 
+//Production websocket
+const wsUrl = import.meta.env.VITE_WS_URL;
+
+//Local websocket
+//const wsUrl = "ws://127.0.0.1:8000"
+
 //Websocket class
 class WebSocketService {
   private socket: WebSocket | null = null;
@@ -22,7 +28,7 @@ class WebSocketService {
     if (this.socket) {
       return;
     }
-    this.socket = new WebSocket(`ws://127.0.0.1:8000/ws/${lobbyCode}/${teamId}/${userId}`);
+    this.socket = new WebSocket(`${wsUrl}/ws/${lobbyCode}/${teamId}/${userId}`);
 
     this.socket.onopen = () => {
     };
