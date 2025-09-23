@@ -38,7 +38,6 @@ export const lobbyService={
       });
       return res.ok ? await res.json():null;
     } catch (e) {
-      console.error("Failed to create lobby: ",e);
       return null;
     }
   },
@@ -51,7 +50,6 @@ export const lobbyService={
       });
       return res.ok ? await res.json():null;
     } catch(e){
-      console.error("Failed to join lobby: ",e);
       return null;
     }
   },
@@ -62,7 +60,6 @@ export const lobbyService={
       const res=await fetch(`${API}/GetLobbyDetails/${lobbyCode}`);
       return res.ok ? await res.json() : null;
     }catch (e) {
-      console.error("Failed to fetch lobby details: ",e);
       return null;
     }
   },
@@ -71,8 +68,6 @@ export const lobbyService={
   leaveTeam: async (lobbyCode: string, user: User): Promise<void> => {
     // Check if the user is authenticated before attempting to leave
     if (!user || !user.id || !user.teamId) {
-      console.error("Cannot leave team: User or teamId is missing.");
-      throw new Error("User data is incomplete.");
     }
     
     // Construct the URL for the leave team endpoint
@@ -98,12 +93,9 @@ export const lobbyService={
       // Handle the response from the server
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`Failed to leave team: ${response.status} ${response.statusText}. Details: ${JSON.stringify(errorData)}`);
       }
 
-      console.log("Successfully left the team.");
     } catch (error) {
-      console.error("Error leaving team:", error);
       throw error;
     }
   },

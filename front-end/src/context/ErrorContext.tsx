@@ -22,7 +22,6 @@ export const ErrorProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const addError = (message: string, type: "error" | "warning" | "info" = "error", duration = 5000) => {
     const id = Math.random().toString(36).substring(2, 9);
     const newError: ErrorState = { id, message, type, duration };
-    console.log('Adding error:', newError);
     setErrors(prev => [...prev, newError]);
   };
 

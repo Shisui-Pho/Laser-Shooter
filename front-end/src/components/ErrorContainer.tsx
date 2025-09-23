@@ -5,7 +5,6 @@ import "./Error.css";
 
 const ErrorContainer: React.FC = () => {
   const { errors, removeError } = useError();
-  console.log('ErrorContainer errors:', errors);
 
   if (errors.length === 0) return null;
 

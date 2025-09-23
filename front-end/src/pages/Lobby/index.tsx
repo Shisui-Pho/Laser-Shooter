@@ -7,6 +7,8 @@ import type { GameMessage } from "../../services/WebSocketService.ts";
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.css'
 import GameOver from "../../components/GameOver.tsx";
+import { useError } from "../../context/ErrorContext";
+
 //TODO: Add styling to page
 const Index: React.FC = () => {
   //
@@ -14,10 +16,10 @@ const Index: React.FC = () => {
   const [lobbyDetails, setLobbyDetails] = useState<Lobby | null>(null);
   const [messages, setMessages] = useState<GameMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { addError } = useError();
   const navigate = useNavigate();
 
   const fetchLobbyDetails = async (lobbyCode: string) => {
-    console.log('Fetched');
     const details = await lobbyService.getLobbyDetails(lobbyCode);
     if (details){
       //console.log(details);
@@ -34,14 +36,14 @@ const Index: React.FC = () => {
   useEffect(() => {
     if(!user)return;
     if (user.role === "player" && (!user?.teamId || !lobby?.code)) {
-      console.log("WS not connecting yet, missing teamId or lobby code", {
-        teamId: user?.teamId,
-        lobbyCode: lobby?.code,
-      });
+      addError("WS not connecting yet, missing teamId or lobby code","error");
       return;
     }
 
-    if (!lobby?.code) return;
+    if (!lobby?.code){
+      addError("No lobby code provided","error");
+      return;
+    } 
     fetchLobbyDetails(lobby.code);
     
     //Only players can connect to the websockets
@@ -49,7 +51,6 @@ const Index: React.FC = () => {
     {
       //Open new connection when not connected
       WebSocketService.connect(lobby?.code, user.teamId, user.id, handleGameMessage);
-      console.log('Executed one to 3');
     }
 
     //poll the data periodically for spactators
@@ -61,7 +62,6 @@ const Index: React.FC = () => {
       //if the game has ended, stop the polling
       if(lobbyDetails?.game_status === "game_over"){
         clearInterval(interval);
-        console.log("Phiwo and Galane ended the game!!!");
       }
       
       return () => clearInterval(interval);

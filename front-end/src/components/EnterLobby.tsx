@@ -53,9 +53,18 @@ const EnterLobby: React.FC = () => {
               time_remaining: 60
             });
           }
+          else{
+            addError("Lobby not found", "error");
+          }
           //redirect to the lobby waiting room
           navigate('/lobby', {replace: true})
         }
+        else{
+          addError("Server did not respond", "error");
+        }
+      }
+      else{
+        addError("Failed to join lobby", "error");
       }
     }
     catch(ex){
@@ -113,9 +122,12 @@ const EnterLobby: React.FC = () => {
           // 	 });
           // }
         }
+        else{
+          addError("Failed to create lobby","error");
+        }
     }
     catch(ex){
-
+      addError(ex instanceof Error ? ex.toString() : String(ex), "error");
     }
     
   };
@@ -127,22 +139,31 @@ const EnterLobby: React.FC = () => {
       return;
     } 
 
-    //Fetch lobby details without joining as a player
-    const lobbyDetails = await lobbyService.getLobbyDetails(code);
-    if (lobbyDetails) {
-      setLobby({
-        code,
-        users: lobbyDetails.users || [],
-        colors: lobbyDetails.colors || [],
-        shape: lobbyDetails.shape || "",
-        teams: lobbyDetails.teams || [],
-        game_status: lobbyDetails.game_status || "not_started", 
-        time_remaining:60
-      });
+    try{
+      //Fetch lobby details without joining as a player
+      const lobbyDetails = await lobbyService.getLobbyDetails(code);
+      if (lobbyDetails) {
+        setLobby({
+          code,
+          users: lobbyDetails.users || [],
+          colors: lobbyDetails.colors || [],
+          shape: lobbyDetails.shape || "",
+          teams: lobbyDetails.teams || [],
+          game_status: lobbyDetails.game_status || "not_started", 
+          time_remaining:60
+        });
 
-      //Navigate to lobby screen
-      navigate('/lobby', {replace: true})
+        //Navigate to lobby screen
+        navigate('/lobby', {replace: true})
+      }
+      else{
+        addError("Lobby not found", "error");
+      }
     }
+    catch(ex){
+      addError(ex instanceof Error ? ex.toString() : String(ex), "error");
+    }
+    
   };
 
   return (
@@ -179,22 +200,27 @@ const EnterLobby: React.FC = () => {
 
         {/*Lobby creation section*/}
         {user && user.role === "player" && (
-          <div className="input-group">
-            {/*Input for specifying maximum players in the new lobby */}
-            <input
-              type="number"
-              min={2}//Minimum 2 players(teams need at least 1 player each)
-              step={2}//Even numbers only(to maintain balanced teams)
-              value={maxPlayers}
-              onChange={(e) => setMaxPlayers(Number(e.target.value))}
-              placeholder="Max Players (even number)"
-              className="input-field"
-            />
-            
-            {/*Button to create a new lobby with specified max players*/}
-            <button onClick={handleCreate} className="submit-button">Create Lobby</button>
-          </div>
-        )}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <label htmlFor="maxPlayers" className="whitespace-nowrap">
+                Number of players
+              </label>
+              <input
+                id="maxPlayers"
+                type="number"
+                min={2}
+                step={2}
+                value={maxPlayers}
+                onChange={(e) => setMaxPlayers(Number(e.target.value))}
+                placeholder="Max Players (even number)"
+                className="input-field"
+              />
+            </div>
+            <button onClick={handleCreate} className="submit-button">
+               Create Lobby
+            </button>
+            </div>
+          )}
       </div>
     </div>
   );
