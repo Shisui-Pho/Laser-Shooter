@@ -5,6 +5,7 @@ import styles from './GameOver.module.css';
 import { useNavigate } from 'react-router-dom';
 import { lobbyService } from '../services/LobbyServices';
 import WebsockService from '../services/WebSocketService'
+import { useError } from "../context/ErrorContext";
 interface GameOverProps {
   lobbyDetails: Lobby;
   user: User | null;
@@ -14,12 +15,18 @@ const GameOver: React.FC<GameOverProps> = ({ lobbyDetails, user = null}) => {
   const winningTeam = lobbyDetails.teams.find(team => team.score === Math.max(...lobbyDetails.teams.map(t => t.score || 0)));
   const isTie = lobbyDetails.teams.every(team => team.score === lobbyDetails.teams[0].score);
   const navigate = useNavigate();
+  const { addError } = useError();
 
   async function onReturnToMain() {
     if(user){
-      //Leave team
-      await lobbyService.leaveTeam(lobbyDetails.code, user);
-      WebsockService.disconnect();
+      try{
+        //Leave team
+        await lobbyService.leaveTeam(lobbyDetails.code, user);
+        WebsockService.disconnect();
+      }catch{
+        //HACK: We could have just swallowed the exception here, it wouldn't hurt anyone :)
+        addError("Disconnected", 'info');
+      }
     }
     navigate('/', {replace:true});
   }
