@@ -22,12 +22,12 @@ class Player(BaseModel):
 #-This will be used for spectators to see team scores and player stats
 class Team(BaseModel):
     id: str
-    score: int
+    score: int = 0
     color: str
     shape: str
-    hits: int
-    misses: int
-    shots: int
+    hits: int = 0
+    misses: int = 0
+    shots: int = 0
     players: list[Player] = []
     max_players: int
 
