@@ -27,9 +27,9 @@ interface CreateLobbyResponse{
 }
 
 //Leave Team response model
-interface LeaveTeamResponse{
-  message: string;
-}
+// interface LeaveTeamResponse{
+//   message: string;
+// }
 
 
 export const lobbyService={
@@ -96,7 +96,7 @@ export const lobbyService={
 
       // Handle the response from the server
       if (!response.ok) {
-        const errorData = await response.json();
+        //const errorData = await response.json();
       }
 
     } catch (error) {

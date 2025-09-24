@@ -8,7 +8,7 @@ import { useError } from "../context/ErrorContext";
 //Component for entering or creating a game lobby
 const EnterLobby: React.FC = () => {
   //Access game context for lobby and user information
-  const { user, setUser, lobby, setLobby } = useGame();
+  const { user, setUser, setLobby } = useGame();
   const { addError } = useError();
   const navigate = useNavigate();
   //States
