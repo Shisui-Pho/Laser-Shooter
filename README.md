@@ -15,6 +15,7 @@ Developed by:
 - Real-time gameplay with a modern web interface
 - REST API powered by **FastAPI**
 - Modular architecture with separate frontend and backend
+- WebSocket support for bi-directional, real-time communication
 
 ---
 
@@ -23,6 +24,7 @@ Developed by:
 ### Backend
 - **Python**
 - **FastAPI**
+- **WebSockets**
 
 ### Frontend
 - **Node.js** with **npm**
