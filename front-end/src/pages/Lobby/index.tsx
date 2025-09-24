@@ -18,13 +18,23 @@ const Index: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { addError } = useError();
   const navigate = useNavigate();
-
+  let nums: number = 0;
   const fetchLobbyDetails = async (lobbyCode: string) => {
-    const details = await lobbyService.getLobbyDetails(lobbyCode);
-    if (details){
-      //console.log(details);
+    let details:Lobby | null = lobbyDetails; 
+    if(!details){
+      //First time
+       details = await lobbyService.getLobbyDetails(lobbyCode);
+    }
+
+    //Poll when the game status is not null
+    if (details?.game_status != "game_over"){
+      const details = await lobbyService.getLobbyDetails(lobbyCode);
+      nums+= 1;
+      console.log(nums);
       setLobbyDetails(details);
-    } 
+      return;
+    }
+    setLobbyDetails(details);
   };
 
   //Scroll to bottom of messages whenever messages change
@@ -68,7 +78,7 @@ const Index: React.FC = () => {
     }
     //FIXME: Lobby.code, user.teamId, user.id do not change once the player has been added
     //- do we really need to keep track of this?    
-  }, [lobby?.code, user?.teamId, user?.id]);
+  }, [lobby?.game_status]);
 
   const handleGameMessage = (msg: GameMessage) => {
     //Handle different message types
@@ -189,7 +199,7 @@ return (
     <div className={styles.gridContainer}>
       {/* Teams Section */}
       <div className={styles.teamsContainer}>
-        {lobbyDetails.teams.map((team: Team, idx: number) => (
+        {lobbyDetails.teams.map((team: Team, _: number) => (
           <div key={team.id} className={styles.teamCard}>
             <div className={styles.teamHeader}>
               <h3 className={styles.teamTitle}>
