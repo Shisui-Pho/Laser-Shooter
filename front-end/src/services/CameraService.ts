@@ -7,7 +7,9 @@ class CameraService{
         :Promise<void>{
         
         try{
-            this.stream=await navigator.mediaDevices.getUserMedia({video:true});
+            this.stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "environment" }
+            });
             videoElement.srcObject=this.stream;
         }
         catch(error){
