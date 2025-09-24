@@ -1,7 +1,7 @@
 import type { Lobby,User } from "../models/User";
 
 //Production API
-const API="import.meta.env.VITE_API_URL";
+const API=import.meta.env.VITE_API_URL;
 
 //Local API
 //const API="http://127.0.0.1:8000";
@@ -61,6 +61,7 @@ export const lobbyService={
   //Get Lobby Details
   async getLobbyDetails(lobbyCode:string):Promise<Lobby|null>{
     try{
+      
       const res=await fetch(`${API}/GetLobbyDetails/${lobbyCode}`);
       return res.ok ? await res.json() : null;
     }catch (e) {
