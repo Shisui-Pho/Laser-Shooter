@@ -28,6 +28,7 @@ class WebSocketService {
     if (this.socket) {
       return;
     }
+    console.log(wsUrl);
     this.socket = new WebSocket(`${wsUrl}/ws/${lobbyCode}/${teamId}/${userId}`);
 
     this.socket.onopen = () => {

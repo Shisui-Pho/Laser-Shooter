@@ -37,6 +37,7 @@ export const lobbyService={
   //Create Lobby
   async createLobby(maxPlayers:number):Promise<CreateLobbyResponse|null>{
     try {
+      console.log(API);
       const res=await fetch(`${API}/CreateLobby/${maxPlayers}`,{
         method:"POST",
       });
