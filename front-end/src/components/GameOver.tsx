@@ -4,6 +4,7 @@ import type { Lobby, User} from '../models/User';
 import styles from './GameOver.module.css';
 import { useNavigate } from 'react-router-dom';
 import { lobbyService } from '../services/LobbyServices';
+import WebsockService from '../services/WebSocketService'
 interface GameOverProps {
   lobbyDetails: Lobby;
   user: User | null;
@@ -18,6 +19,7 @@ const GameOver: React.FC<GameOverProps> = ({ lobbyDetails, user = null}) => {
     if(user){
       //Leave team
       await lobbyService.leaveTeam(lobbyDetails.code, user);
+      WebsockService.disconnect();
     }
     navigate('/', {replace:true});
   }
