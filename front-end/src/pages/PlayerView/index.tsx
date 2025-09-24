@@ -34,7 +34,7 @@ function Index() {
   const statusTimeoutRef = useRef<number | null>(null);
   
   //Access user and lobby form the game context
-  const { user, lobby, setUser, setLobby } = useGame();
+  const { user, lobby } = useGame();
   const navigate = useNavigate();
 
   //Helper function to set and clear the status message
