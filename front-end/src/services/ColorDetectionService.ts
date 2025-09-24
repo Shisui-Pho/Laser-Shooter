@@ -21,13 +21,13 @@ interface HSV {
 const COLOR_RANGES: Record<string, [number[], number[]][]> = {
   red: [
     [[0, 100, 100], [10, 255, 255]],
-    [[160, 100, 100], [179, 255, 255]],
+    [[170, 100, 100], [179, 255, 255]], 
   ],
-  blue: [[[100, 150, 0], [140, 255, 255]]],
+  blue: [[[100, 150, 50], [130, 255, 255]]],
   green: [[[40, 70, 70], [80, 255, 255]]],
   yellow: [[[20, 100, 100], [30, 255, 255]]],
   orange: [[[10, 100, 100], [20, 255, 255]]],
-  purple: [[[140, 100, 100], [160, 255, 255]]],
+  purple: [[[130, 100, 100], [160, 255, 255]]],
 };
 
 //Color detection service class
@@ -51,25 +51,28 @@ class ColorDetectionService {
     const max = Math.max(r, g, b),
       min = Math.min(r, g, b);
     const d = max - min;
-    let h = 0,
-      s = max === 0 ? 0 : d / max,
-      v = max;
+    let h = 0;
 
     if (d !== 0) {
       switch (max) {
         case r:
-          h = (g - b) / d + (g < b ? 6 : 0);
+          h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
           break;
         case g:
-          h = (b - r) / d + 2;
+          h = ((b - r) / d + 2) * 60;
           break;
         case b:
-          h = (r - g) / d + 4;
+          h = ((r - g) / d + 4) * 60;
           break;
       }
-      h *= 60;
     }
-    return { h, s: s * 255, v: v * 255 };
+
+    // normalize to OpenCV style ranges
+    h = Math.round(h / 2);        // 0–179
+    const s = Math.round((max === 0 ? 0 : d / max) * 255);
+    const v = Math.round(max * 255);
+
+    return { h, s, v };
   }
 
   //Classify the colors
@@ -93,6 +96,23 @@ class ColorDetectionService {
     return null;
   }
 
+  //Classify the most frequent color in a region
+  private classifyRegion(pixels: Uint8ClampedArray): string | null {
+    const counts: Record<string, number> = {};
+
+    for (let i = 0; i < pixels.length; i += 4) {
+      const r = pixels[i];
+      const g = pixels[i + 1];
+      const b = pixels[i + 2];
+
+      const color = this.classifyColor(r, g, b);
+      if (color) counts[color] = (counts[color] || 0) + 1;
+    }
+
+    const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+    return best ? best[0] : null;
+  }
+
   //Determine the color in the center of the frame
   detectColor(video: HTMLVideoElement, canvas: HTMLCanvasElement): DetectedColor {
     const ctx = canvas.getContext("2d");
@@ -111,22 +131,7 @@ class ColorDetectionService {
     const imageData = ctx.getImageData(x, y, size, size);
 
     //Calculate the rgb values from pixels in the sampling area
-    let r = 0, g = 0, b = 0;
-    const pixels = imageData.data;
-    for (let i = 0; i < pixels.length; i += 4) {
-      r += pixels[i];
-      g += pixels[i + 1];
-      b += pixels[i + 2];
-    }
-
-    //Calculate average RGB values
-    const pixelCount = pixels.length / 4;
-    r /= pixelCount;
-    g /= pixelCount;
-    b /= pixelCount;
-
-    //Classify the color average color
-    const detected = this.classifyColor(r, g, b);
+    const detected = this.classifyRegion(imageData.data);
 
     //Determine the color to return
     //White: No enemy or team color detected

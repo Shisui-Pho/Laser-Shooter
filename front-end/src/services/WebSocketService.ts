@@ -10,7 +10,7 @@ export interface GameMessage {
 const wsUrl = import.meta.env.VITE_WS_URL;
 
 //Local websocket
-//const wsUrl = "ws://127.0.0.1:8000"
+//const wsUrl = "ws://127.0.0.1:8000";
 
 //Websocket class
 class WebSocketService {
