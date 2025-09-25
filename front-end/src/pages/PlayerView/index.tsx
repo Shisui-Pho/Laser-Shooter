@@ -1,3 +1,6 @@
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
+
 import { useEffect, useRef, useState } from "react";
 import CameraService from "../../services/CameraService";
 import Crosshair from "../../widgets/Crosshair";

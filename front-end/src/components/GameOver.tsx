@@ -1,4 +1,6 @@
-// components/GameOver/GameOver.tsx
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
+
 import React from 'react';
 import type { Lobby, User} from '../models/User';
 import styles from './GameOver.module.css';

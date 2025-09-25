@@ -1,3 +1,6 @@
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
+
 import React, { useState, useEffect, useRef } from "react";
 import { useGame } from "../../context/GameContext";
 import type { Lobby, Team } from "../../models/User.ts";

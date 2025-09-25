@@ -1,4 +1,5 @@
-//Re wrote this page for dynamic color setting and to accommodate all backend colors
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
 
 //Possible colors
 export type DetectedColor =

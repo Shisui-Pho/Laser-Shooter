@@ -1,3 +1,5 @@
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
 
 class CameraService{
     private stream:MediaStream | null=null;

@@ -1,3 +1,6 @@
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import LobbyPage from "./pages/Lobby";
