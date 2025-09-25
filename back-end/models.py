@@ -40,8 +40,15 @@ class Team(BaseModel):
 
 class Lobby(BaseModel):
     teams: dict[str, Team]
-    game_status:str = 'not_started'
-    time_remaining: int = 60;
+    game_status: Literal['not_started','game_over','running'] = 'not_started'
+    time_remaining: int = 60
+    allowed_inactive_time: int =  60 #a lobby has a life time of 3 minuites before game_status = 'running', otherwise
+                                      # it will be removed and everyone will be disconnected 
+    
+    allowed_active_time_for_detail: int = 30 # After the game has ended, the lobby will be allowed to be still active
+                                             #   for another 30 seconds before it is being removed from the server
+                                             #   this is because the spectators poll the data on certain intervals
+                                             #   and do not get notifies immediately
 
 #Models for WebSocket messages
 class ShotHitPayload(BaseModel):

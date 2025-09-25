@@ -49,26 +49,52 @@ class LobbyManager:
                 remaining = self.active_lobbies[lobby_code]["time_remaining"]
 
                 if remaining <= 0:
-                    #game over broadcast
-                    winner,looser = self.get_team_ranking(lobby_code)
-                    game_over = GameOverPayload(winning_team_name=winner.id, winning_team_score=looser.score, 
-                                                losing_team_name=looser.id, losing_team_score=looser.score)
-                    message = Message(type="game_over",payload=game_over)
-                    #update lobby game status
-                    self.lobbies[lobby_code].game_status = 'game_over'
-                    #broad-cast results
-                    await self.c_manager.send_message_to_Lobby(lobby_code=lobby_code, message=message)
-                    await self.c_manager.disconnect_lobby(lobby_code=lobby_code)
-                    #Remove the lobby
-                    del self.active_lobbies[lobby_code]
+                    await self._handle_game_over(lobby_code)
                 else:
                     #broadcast timer results
                     message = Message(type="timer_report",payload= TimerReportPayload(time_remaining=remaining))
                     await self.c_manager.send_message_to_Lobby(lobby_code=lobby_code, message=message)
             
-            #after checking the time for all active lobbies,
+            #check for stale lobbyies
+            # All lobies that are in-ective for more than 3minutes will be remove(and disconnected)
+            for lobby_code, _ in list(self.lobbies.items()):
+                if lobby_code in self.active_lobbies:
+                    continue
+
+                if self.lobbies[lobby_code].allowed_inactive_time <= 0:
+                    await self._handle_game_over(lobby_code)
+                else:
+                    self.lobbies[lobby_code].allowed_inactive_time -= 1;
+                
+                # Lobby cleanup
+                if self.lobbies[lobby_code].game_status == 'game_over':
+                    self.lobbies[lobby_code].allowed_active_time_for_detail-=1
+                
+                if self.lobbies[lobby_code].allowed_active_time_for_detail <= 0:
+                    # delete the lobby
+                    del self.lobbies[lobby_code]
+
             #-sleep for 1 second
             await asyncio.sleep(1)
+
+    async def _handle_game_over(self, lobby_code):
+        #game over broadcast
+        winner,looser = self.get_team_ranking(lobby_code)
+        game_over = GameOverPayload(winning_team_name=winner.id, winning_team_score=looser.score, 
+                                    losing_team_name=looser.id, losing_team_score=looser.score)
+        message = Message(type="game_over",payload=game_over)
+        
+        #update lobby game status
+        self.lobbies[lobby_code].game_status = 'game_over'
+
+        #broad-cast results
+        await self.c_manager.send_message_to_Lobby(lobby_code=lobby_code, message=message)
+        await self.c_manager.disconnect_lobby(lobby_code=lobby_code)
+
+        #Remove the lobby from active lobbies
+        if lobby_code in self.active_lobbies:
+            del self.active_lobbies[lobby_code]
+
 
     def get_team_ranking(self, lobby_code:str) -> tuple[Team , Team]:
         #determine winning and lossing teams
@@ -107,5 +133,7 @@ class LobbyManager:
         return lobby_code in self.active_lobbies
     
     def remove_lobby(self, lobby_code: str):
-        if lobby_code in self.lobbies:
-            del self.lobbies[lobby_code]
+        # if lobby_code in self.lobbies:
+        #     del self.lobbies[lobby_code]
+        self.lobbies[lobby_code].game_status = 'game_over'
+

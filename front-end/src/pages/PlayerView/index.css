@@ -52,7 +52,7 @@ html, body {
 }
 
 .shoot-button-container {
-  @apply absolute bottom-8 left-1/2 -translate-x-1/2 transform;
+  @apply absolute bottom-24 left-1/2 -translate-x-1/2 transform;
 }
 
 .shoot-button {
