@@ -1,3 +1,6 @@
+# Phiwokwakhe Khathwane : 2022004325
+# Welcome Galane        : 2024671386 
+
 import random
 from models import Lobby, Player, Team
 colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']

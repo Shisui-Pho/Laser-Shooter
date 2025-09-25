@@ -1,3 +1,6 @@
+# Phiwokwakhe Khathwane : 2022004325
+# Welcome Galane        : 2024671386 
+
 from fastapi import HTTPException
 from models import Lobby, Message, GameOverPayload, Player
 from ConnectionManager import ConnectionManager

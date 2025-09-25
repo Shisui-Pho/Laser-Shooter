@@ -1,3 +1,6 @@
+# Phiwokwakhe Khathwane : 2022004325
+# Welcome Galane        : 2024671386 
+
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
