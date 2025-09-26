@@ -6,11 +6,14 @@ import { useError } from "../context/ErrorContext";
 import ErrorToast from "./Error";
 import "./Error.css";
 
+//Component for the error UI
 const ErrorContainer: React.FC = () => {
   const { errors, removeError } = useError();
 
+  //If there's no errors, return null
   if (errors.length === 0) return null;
 
+  //Return the error UI
   return (
     <div className="error-container">
       {errors.map((error, index) => (

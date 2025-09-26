@@ -10,6 +10,7 @@ interface ErrorToastProps {
   onClose?: () => void;
 }
 
+//Component displaying error alerts
 const ErrorToast: React.FC<ErrorToastProps> = ({ 
   message, 
   type = "error", 

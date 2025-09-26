@@ -4,10 +4,14 @@ import type { Role } from "../models/User.ts";
 import "../pages/Home/index.css";
 import { useError } from "../context/ErrorContext"
 
+//Properties interface
 interface Props {
   setSubmitted: (submitted:boolean) => void;
 }
+
+//Component for entering call name
 const EnterCallName: React.FC<Props> = ({setSubmitted}) => {
+
   //Pull setUser out of global context so we can save what the user typed
   const { setUser } = useGame();
   const { addError } = useError();
@@ -30,12 +34,16 @@ const EnterCallName: React.FC<Props> = ({setSubmitted}) => {
           setUser({ id: -1, callName: name, role });
           setSubmitted(true); //Indicate that it has been submitted
     }
+
+    //Unlikely to fire but
+    //If an excepion that we didn't account for occurs, we alert the user
     catch(ex){
       addError(ex instanceof Error ? ex.toString() : String(ex), "error");
     }
     
   };
 
+  //Return the call name form
   return (
     <div className="form-container">
       <form onSubmit={handleSubmit} className="form-wrapper">

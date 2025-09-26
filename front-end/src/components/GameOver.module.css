@@ -1,114 +1,135 @@
 /*Welcome Galane:2024671386
 Phiwokwakhe Khathwane: 2022004325*/
 
+/* Styles for the game over overlay, covering the entire viewport */
 .gameOverlay {
   @apply fixed inset-0 z-50 flex items-start justify-center 
          bg-black/95 backdrop-blur-sm p-4 overflow-y-auto;
 }
+
 /*Hack 09: Make gameOverlay above the crosshair*/
 .gameOverlay {
   z-index: 10000;
 }
+
+/* Styles for the main game over content container */
 .gameOverContent {
   @apply relative w-full max-w-2xl my-8 rounded-2xl bg-zinc-900/95 
          border-2 border-neon-green-500 shadow-2xl shadow-neon-green-500/30 
          overflow-hidden mx-auto;
 }
 
+/* Pseudo-element for a subtle gradient background effect */
 .gameOverContent::before {
   content: '';
   @apply absolute inset-0 bg-gradient-to-br from-neon-green-500/10 via-transparent to-neon-red-500/10;
   pointer-events: none;
 }
 
-/* Header */
+/* Styles for the header section of the game over screen */
 .header {
   @apply text-center p-6 bg-zinc-800/50 border-b border-zinc-700;
 }
 
+/* Styles for the main title in the header */
 .title {
   @apply text-3xl font-bold text-neon-green-400 mb-2
          bg-clip-text text-transparent bg-gradient-to-r from-neon-green-400 to-neon-green-600;
 }
 
+/* Styles for the subtitle in the header */
 .subtitle {
   @apply text-sm text-zinc-300 uppercase tracking-widest;
 }
 
-/* Results */
+/* Styles for the results container holding winner and standings sections */
 .resultsContainer {
   @apply p-6 space-y-6;
 }
 
-/* Winner Section */
+/* Styles for the winner section */
 .winnerSection {
   @apply text-center bg-zinc-800/30 p-4 rounded-xl border border-neon-green-500;
 }
 
+/* Styles for the winner badge */
 .winnerBadge {
   @apply inline-block px-3 py-1 mb-3 bg-neon-green-500 text-zinc-950 
          text-xs font-bold uppercase tracking-widest rounded-full;
 }
 
+/* Styles for the winner team name */
 .winnerTeam {
   @apply text-xl font-bold text-neon-green-300 mb-2;
 }
 
+/* Styles for the winner score */
 .winnerScore {
   @apply text-lg text-neon-green-400 font-mono;
 }
 
-/* Tie Message */
+/* Styles for the tie message section */
 .tieMessage {
   @apply text-center bg-zinc-800/30 p-4 rounded-xl border border-yellow-500;
 }
 
+/* Styles for the tie icon */
 .tieIcon {
   @apply text-3xl mb-3;
 }
 
+/* Styles for the tie title */
 .tieTitle {
   @apply text-xl font-bold text-yellow-400 mb-2;
 }
 
+/* Styles for the tie message text */
 .tieText {
   @apply text-zinc-300;
 }
 
-/* Standings */
+/* Styles for the standings section */
 .standings {
   @apply bg-zinc-800/20 p-4 rounded-xl border border-zinc-700;
 }
 
+/* Styles for the standings title */
 .standingsTitle {
   @apply text-lg font-bold text-zinc-200 mb-3 text-center 
          border-b border-zinc-700 pb-2;
 }
 
+/* Styles for the standings list container */
 .standingsList {
   @apply space-y-2;
 }
 
+/* Styles for individual standing items */
 .standingItem {
   @apply flex items-center justify-between p-2 rounded-lg bg-zinc-700/30 border border-zinc-600/50;
 }
 
+/* Styles for the rank in standings */
 .standingRank {
   @apply font-mono font-bold text-neon-green-400 w-6;
 }
 
+/* Styles for the team information in standings */
 .standingTeam {
   @apply flex-1 flex justify-between items-center;
 }
 
+/* Styles for the team name in standings */
 .teamName {
   @apply text-zinc-200 font-medium text-sm;
 }
 
+/* Styles for the team score in standings*/
 .teamScore {
   @apply text-neon-green-300 font-mono text-sm;
 }
 
+/* Styles for the victory crown icon */
 .victoryCrown {
   @apply ml-2 text-xl;
 }

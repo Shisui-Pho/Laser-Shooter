@@ -146,11 +146,12 @@ class ColorDetectionService {
     return "white"; 
   }
 
-  //Getters for enemy and team color
+  //Get enemy color
   getEnemyTeamColor(): string | null {
     return this.enemyTeamColor;
   }
 
+  //Get friendly color
   getMyTeamColor(): string | null {
     return this.myTeamColor;
   }

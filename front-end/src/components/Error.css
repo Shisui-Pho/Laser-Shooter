@@ -1,6 +1,7 @@
 /*Welcome Galane:2024671386
 Phiwokwakhe Khathwane: 2022004325*/
 
+/* Styles for the error container, which holds all error toasts */
 .error-container {
   position: fixed;
   top: 0;
@@ -11,6 +12,7 @@ Phiwokwakhe Khathwane: 2022004325*/
   pointer-events: none;
 }
 
+/* Styles for individual error toast notifications */
 .error-toast {
   @apply fixed top-4 left-1/2 transform -translate-x-1/2 
          min-w-80 max-w-md rounded-lg border-2 bg-zinc-900 p-4 
@@ -20,27 +22,33 @@ Phiwokwakhe Khathwane: 2022004325*/
   animation: pulse-glow-red 0.5s infinite alternate;
 }
 
+/* Styles for the enter animation of error toasts */
 .error-toast-enter {
   animation: slide-in 0.3s ease-out, pulse-glow-red 0.5s infinite alternate;
 }
 
+/* Styles for the exit animation of error toast*/
 .error-toast-exit {
   animation: slide-out 0.3s ease-in forwards;
 }
 
+/* Styles for the content inside error toasts */
 .error-toast-content {
   @apply flex items-center justify-between space-x-3;
 }
 
+/* Styles for the error icon within toasts */
 .error-icon {
   @apply text-xl flex-shrink-0;
 }
 
+/* Styles for the error message text within toasts */
 .error-message {
   @apply flex-1 text-sm font-mono text-zinc-200;
   text-shadow: 0 0 5px currentColor;
 }
 
+/* Styles for the close button in error toasts */
 .error-close-button {
   @apply flex-shrink-0 w-6 h-6 rounded-full bg-zinc-800 
          border border-zinc-600 text-zinc-400 text-xs 

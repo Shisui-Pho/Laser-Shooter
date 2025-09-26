@@ -29,12 +29,8 @@ interface CreateLobbyResponse{
   teams:any[];
 }
 
-//Leave Team response model
-// interface LeaveTeamResponse{
-//   message: string;
-// }
 
-
+//Lobby service object with methods for lobby related API calls
 export const lobbyService={
 
   //Create Lobby
