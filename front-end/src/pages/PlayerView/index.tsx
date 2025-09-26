@@ -15,8 +15,9 @@ import GameOver from "../../components/GameOver";
 import { useError } from "../../context/ErrorContext";
 
 
+//The player page
 function Index() {
-  //Video and canvas refs
+  //References
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -58,7 +59,6 @@ function Index() {
    }
   };
 
-
   //Start camera
   useEffect(() => {
    if (videoRef.current) {
@@ -93,23 +93,15 @@ function Index() {
     return;
    }
 
-
-   //Intialize vairabe for each team
+   //Intialize variabe for each team
    let myTeam: Team | undefined;
    let enemyTeam: Team | undefined;
 
-   //TODO: Refine this since the Lobby structure was changed
    //Determine team information using the lobby structure
    if (lobby.teams) {
     //Handle array based team data
     if (Array.isArray(lobby.teams)) {
      if (Array.isArray(lobby.colors) && lobby.teams.length === lobby.colors.length) {
-      // const teams = lobby.teams.map((id, idx) => ({
-      //  id,
-      //  color: lobby.colors[idx],
-      //  shape: lobby.shape ?? null,
-      // })) as Team[];
-
       const teams = lobby.teams;
       myTeam = teams.find((t) => t.id === user.teamId);
       enemyTeam = teams.find((t) => t.id !== user.teamId);
@@ -117,11 +109,11 @@ function Index() {
       addError("Mismatch between lobby.teams and lobby.colors","error");
      }
     }
+
     //Handle object based team data
     else {
      //const teamsObj = (lobby.teams as { teams: Record<string, Team> }).teams;
      const teams: Team[] = lobby.teams; //Object.values(teamsObj);
-
      myTeam = teams.find((t) => t.id === user.teamId);
      enemyTeam = teams.find((t) => t.id !== user.teamId);
     }
@@ -129,27 +121,20 @@ function Index() {
 
    //Configure color detection with team colors
    if (myTeam && enemyTeam) {
-    ColorDetectionService.setTeamColors(myTeam.color, enemyTeam.color);
-    setShootColor(enemyTeam.color);
-   } else {
-    
-   }
+      ColorDetectionService.setTeamColors(myTeam.color, enemyTeam.color);
+      setShootColor(enemyTeam.color);
+    }
 
    //Establish a websocket connection using the websocket service
    //WebSocketService.connect(lobby.code, user.teamId, handleGameMessage);
    WebSocketService.chageMessageHandler(handleGameMessage);
-
-   //Disconnect websocket when component unmounts
-   // return () => {
-   //  console.log("Disconnecting WebSocket");
-   //  WebSocketService.disconnect();
-   // };
   }, [user?.teamId, lobby?.code, lobby?.teams, lobby?.colors, lobby?.shape]);
 
-  //Handle messages from websocket
+  //Store lobby details
   let lobbyDetails: Lobby | null = lobby;
-  async function handleGameMessage (msg: GameMessage) {
 
+  //Handle messages from websocket
+  async function handleGameMessage (msg: GameMessage) {
    switch (msg.type) {
     case "hit":
      setScore((s) => s + 15);
@@ -189,13 +174,14 @@ function Index() {
    }
   };
 
+  //Method to return to lobby
   const returnToLobby = async () => {
    if (!lobby || !user) return;
    try {
     await lobbyService.leaveTeam(lobby.code, user);
     navigate("/enterLobby");
    } catch (e) {
-    navigate("/", {replace:true});//We don't want the user to be able to go back
+    navigate("/", {replace:true});
    }
   };
 
@@ -214,7 +200,7 @@ function Index() {
    //Return if any required of elements is null
    if (!videoRef.current || !canvasRef.current || !user) return;
 
-   //Disable button and start reloading
+   //Disable button and start reloading after a shot
    setIsReloading(true);
    updateStatus("Reloading...");
    setReloadProgress(0);
@@ -231,7 +217,8 @@ function Index() {
     }
    }, 50);
 
-   //Disabled crosshair color from stopping shots(temporary thing to make life easier when debugging)
+   //Disabled crosshair color from stopping shots
+   //But if you want, you can enable it
    /*if (crosshairColor !== "red") {
     setStatus("Can't shoot — no enemy detected");
     return;
@@ -255,6 +242,7 @@ function Index() {
    updateStatus("Shot fired!");
   };
 
+  //Return the player view UI
   return (
    //Styling here is temporary for testing and development
    <div className="game-container">

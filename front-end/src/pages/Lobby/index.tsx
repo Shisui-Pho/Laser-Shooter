@@ -12,9 +12,10 @@ import styles from './index.module.css'
 import GameOver from "../../components/GameOver.tsx";
 import { useError } from "../../context/ErrorContext";
 
-//TODO: Add styling to page
+//The lobby page
 const Index: React.FC = () => {
-  //
+
+  //States
   const { lobby, user } = useGame();
   const [lobbyDetails, setLobbyDetails] = useState<Lobby | null>(null);
   const [messages, setMessages] = useState<GameMessage[]>([]);
@@ -22,21 +23,24 @@ const Index: React.FC = () => {
   const { addError } = useError();
   const navigate = useNavigate();
   let nums: number = 0;
+
+  //Method to fetch lobby details from backend
   const fetchLobbyDetails = async (lobbyCode: string) => {
     let details:Lobby | null = lobbyDetails; 
+    //Fetch the lobby details for the first time if there are not lobby details yet
     if(!details){
-      //First time
        details = await lobbyService.getLobbyDetails(lobbyCode);
     }
 
-    //Poll when the game status is not null
+    //Poll when the game status is over
     if (details?.game_status != "game_over"){
       const details = await lobbyService.getLobbyDetails(lobbyCode);
       nums+= 1;
-      console.log(nums);
       setLobbyDetails(details);
       return;
     }
+
+    //Update the state if game is over
     setLobbyDetails(details);
   };
 
@@ -45,18 +49,28 @@ const Index: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
   
-  //TODO: Break this hook into spectator and player hook to avoid those nasty if statements
+  //Handle lobby data fetching and websocket connection
   useEffect(() => {
-    if(!user)return;
+
+    //Alert the user and return if somehow there's not user object
+    if(!user){
+      addError("No user found","error");
+      return;
+    }
+
+    //Alert the user and return if there's no some requirements are missing
     if (user.role === "player" && (!user?.teamId || !lobby?.code)) {
       addError("WS not connecting yet, missing teamId or lobby code","error");
       return;
     }
 
+    //Alert the user and return if lobby code is missing
     if (!lobby?.code){
       addError("No lobby code provided","error");
       return;
     } 
+
+    //Fetch lobby details
     fetchLobbyDetails(lobby.code);
     
     //Only players can connect to the websockets
@@ -79,15 +93,14 @@ const Index: React.FC = () => {
       
       return () => clearInterval(interval);
     }
-    //FIXME: Lobby.code, user.teamId, user.id do not change once the player has been added
-    //- do we really need to keep track of this?    
+    
+    //Re run effect when game status changes
   }, [lobby?.game_status]);
 
   const handleGameMessage = (msg: GameMessage) => {
     //Handle different message types
     switch (msg.type) {
       case 'start_game':
-        //console.log("Start game received, would redirect now");
         //Redirect to player scree page
         //-They cannot go back to previous page
         navigate('/player', {replace: true})
@@ -115,17 +128,21 @@ const Index: React.FC = () => {
         return `System message: ${msg.type}`;
     }
   };
+
+  //Method to navigate back to the home screen
   function handleRejoinLobby(){
     //Navigate the user back to the home screen
     navigate('/', {replace:true});
   }
   
+  //Format and return time in mm:ss format
   const formatTime = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 };
 
+//If there's no lobby details or they are not yet fetched, display loading screen
 if (!lobbyDetails) {
   return (
     <div className={""}>
@@ -141,17 +158,12 @@ if (!lobbyDetails) {
   );
 }
 
-// if(lobbyDetails.game_status === 'game_over'){
-//   return (
-//     <>
-//     </>
-//   )
-// }
+//Check if the user is a spectator
 const isSpectator = user?.role === 'spectator';
 
+//Return lobby UI
 return (
   <div className={`${""} ${isSpectator ? styles.spectatorView : ''}`}>
-    {/* <div className={""}></div> */}
     
     {isSpectator && (
       <div className={styles.spectatorBadge}>SPECTATOR MODE</div>

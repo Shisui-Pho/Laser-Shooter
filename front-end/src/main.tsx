@@ -11,6 +11,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <div className="main-container">
       <GameProvider>
+        {/*Wrap the app with game provider*/}
         <App />
       </GameProvider>
     </div>
