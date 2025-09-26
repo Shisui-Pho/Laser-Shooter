@@ -1,3 +1,6 @@
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -8,6 +11,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <div className="main-container">
       <GameProvider>
+        {/*Wrap the app with game provider*/}
         <App />
       </GameProvider>
     </div>

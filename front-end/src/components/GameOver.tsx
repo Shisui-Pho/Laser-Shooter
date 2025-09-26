@@ -1,4 +1,6 @@
-// components/GameOver/GameOver.tsx
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
+
 import React from 'react';
 import type { Lobby, User} from '../models/User';
 import styles from './GameOver.module.css';
@@ -11,6 +13,7 @@ interface GameOverProps {
   user: User | null;
 }
 
+//Component for game over
 const GameOver: React.FC<GameOverProps> = ({ lobbyDetails, user = null}) => {
   const winningTeam = lobbyDetails.teams.find(team => team.score === Math.max(...lobbyDetails.teams.map(t => t.score || 0)));
   const isTie = lobbyDetails.teams.every(team => team.score === lobbyDetails.teams[0].score);

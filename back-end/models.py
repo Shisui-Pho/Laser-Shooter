@@ -1,3 +1,6 @@
+# Phiwokwakhe Khathwane : 2022004325
+# Welcome Galane        : 2024671386 
+
 from turtle import st
 from pydantic import BaseModel
 from typing import Union, Literal
@@ -31,6 +34,7 @@ class Team(BaseModel):
     players: list[Player] = []
     max_players: int
 
+    #gets the player from the players
     def get_player(self, user_id: int) -> Player | None:
         for player in self.players:
             if player.id == user_id:
@@ -40,8 +44,20 @@ class Team(BaseModel):
 
 class Lobby(BaseModel):
     teams: dict[str, Team]
-    game_status:str = 'not_started'
-    time_remaining: int = 60;
+    game_status: Literal['not_started','game_over','running'] = 'not_started'
+    #Time remaining after the game has started(default is 60 seconds)
+    time_remaining: int = 60
+
+    #a lobby has a life time of 3 minuites before game_status = 'running', otherwise
+    # it will be removed and everyone will be disconnected 
+    allowed_inactive_time: int =  120 
+    # After the game has ended, the lobby will be allowed to be still active
+    #   for another 30 seconds before it is being removed from the server
+    #   this is because the spectators poll the data on certain intervals
+    #   and do not get notifies immediately
+    allowed_active_time_for_detail: int = 30 
+
+
 
 #Models for WebSocket messages
 class ShotHitPayload(BaseModel):
@@ -60,6 +76,7 @@ class MissedShotPayload(BaseModel):
 
 class TimerReportPayload(BaseModel):
     time_remaining: float
+
 #This is to be broadcasted everytime a new user connects to the websocket
 class JoinedTeamPayload(BaseModel):
     user_name: str #User who just joined
@@ -67,8 +84,10 @@ class JoinedTeamPayload(BaseModel):
     members_remaining: int
     max_members: int
 
+# Message payload types
 Payload = Union[ShotHitPayload, GameOverPayload, MissedShotPayload, TimerReportPayload, JoinedTeamPayload, None]
 
+#Message sent to users via websockets
 class Message(BaseModel):
     type: Literal['hit', 'shot', 'game_over', 'missed_shot', 'start_game','timer_report','join']
     payload: Payload

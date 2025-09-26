@@ -1,3 +1,6 @@
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
+
 import React, { useEffect, useState } from "react";
 
 interface ErrorToastProps {
@@ -7,6 +10,7 @@ interface ErrorToastProps {
   onClose?: () => void;
 }
 
+//Component displaying error alerts
 const ErrorToast: React.FC<ErrorToastProps> = ({ 
   message, 
   type = "error", 

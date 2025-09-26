@@ -1,4 +1,5 @@
-//This file will be modularized once mvp is complete
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325e
 
 export type Role = "player" | "spectator";
 

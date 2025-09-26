@@ -1,4 +1,7 @@
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
 
+//Camera service to manage camera access
 class CameraService{
     private stream:MediaStream | null=null;
 

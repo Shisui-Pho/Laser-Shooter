@@ -1,3 +1,6 @@
+# Phiwokwakhe Khathwane : 2022004325
+# Welcome Galane        : 2024671386 
+
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -17,12 +20,13 @@ l_manager = LobbyManager(c_manager)
 #counter variable for player id's
 id_counter : int = 1
 
-#create a background task for the game timer
+#create a background task for the game timer loop
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     asyncio.create_task(l_manager.game_timer_loop())
     yield
 
+#Fast API configuration and middleware
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
@@ -35,11 +39,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#Root route for testing if api works
 @app.get("/")
 async def root():
     return {"message": "Phiwo and Galane were here!"}
 
-#Get methods for api endpoints
+#API ENDPOINTS
+
+#Post endpoint that creates a lobby "room" and returns the lobby creation details
+#- Players will then be able to joing this lobby
 @app.post("/CreateLobby/{max_players}")
 async def create_lobby(max_players: int):
     if max_players % 2 != 0 or max_players < 2:
@@ -52,19 +60,26 @@ async def create_lobby(max_players: int):
     return sv.to_lobby_creation_json(lobby_code, teamA, teamB)
 
 
+#Post endpoint for joining a lobby "room" given the lobby_code and name of the player
+#- A new player object will be created and assigned an id and team
+#    details will be returned to the client.
 @app.post("/JoinLobby/{lobby_code}/{username}")
 async def join_lobby(lobby_code: str, username: str):
     global id_counter
     if not l_manager.lobby_code_exists(lobby_code):
         raise HTTPException(status_code=404, detail="Lobby not found.")
     
+    if l_manager.are_teams_full(lobby_code):
+        return {"message" : "Cannot join lobby, it is full."}
+    
+    #create a new player
     player = Player(id=id_counter, name=username, team_id="", hits=0)
     id_counter += 1
     #Assign the player to a team randomly(well, not really randomly, but balancing the teams)
     assign_team(lobby_code, player)
     return {"message": f"Joined lobby {lobby_code}","user": player}
 
-
+#Get method for getting the lobby details given the lobby code
 @app.get("/GetLobbyDetails/{lobby_code}")
 async def get_lobby_details(lobby_code: str):
     if not l_manager.lobby_code_exists(lobby_code):
@@ -77,11 +92,12 @@ async def get_lobby_details(lobby_code: str):
     #return a nicely formated lobby details    
     return sv.to_lobby_details_json(lobby_code, lobby)
 
-    
+
+#Post method for exiting a lobby 
 @app.post("/LeaveTeam/{lobby_code}")
 async def leave_team(lobby_code: str, player: Player):
     if not l_manager.lobby_code_exists(lobby_code):
-        return {"message" : "Lobby code does not exist."} #
+        return {"message" : "Lobby code does not exist."}
     
     team = l_manager.get_team_from_lobby(lobby_code, player.team_id)
     if not team:
@@ -90,16 +106,17 @@ async def leave_team(lobby_code: str, player: Player):
     if player not in team.players:
         return {"message" : "Player not in the team."}
     
-    #remove th eplayer
+    #remove the player from the team
     team.players.remove(player)
 
-    #if there are no player on the team, delete the lobby session
+    #if there are no players on the team, delete the lobby session
     if len(team.players) == 0:
         l_manager.remove_lobby(lobby_code)
 
     return {"message": f"Left {player.team_id} in lobby {lobby_code}"}
 
 
+#Helper method to assign players to a team by balancing players
 def assign_team(lobby_code: str, player:Player):
     if not l_manager.lobby_code_exists(lobby_code):
         raise HTTPException(status_code=404, detail="Lobby not found.")
@@ -114,7 +131,7 @@ def assign_team(lobby_code: str, player:Player):
         player.team_id = teamB.id
         teamB.players.append(player)
 
-#Socket endpoint to handle image processing and broadcasting messages
+#Socket endpoint to handle image processing and broadcasting messages as well as connecting
 @app.websocket("/ws/{lobby_code}/{team_name}/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, lobby_code: str, team_name:str, user_id: int):
     #You can only connect if the lobby and team exist
@@ -127,13 +144,15 @@ async def websocket_endpoint(websocket: WebSocket, lobby_code: str, team_name:st
         return
     #No one can join when a lobby is active
     if l_manager.is_lobby_active(lobby_code):
-        await websocket.close(code=100)
+        await websocket.close(code=1000)
         return
+
     #if player is not in the team
     player = team.get_player(user_id)
     if not player:
         await websocket.close(code=1000)
         return
+    
     #connect to the websocket
     await c_manager.connect(lobby_code,team_name, websocket)
 
@@ -185,6 +204,7 @@ async def websocket_endpoint(websocket: WebSocket, lobby_code: str, team_name:st
         except:
             pass
 
+#Helper method to handle valid shots
 async def handle_valid_hit(lobby_code:str, team_shooter: Team, team_shot : Team, player_shooter: Player):
     #Record a hit
     team_shooter.hits += 1
@@ -204,6 +224,7 @@ async def handle_valid_hit(lobby_code:str, team_shooter: Team, team_shot : Team,
     #broadcast a shot message to all players in the opposing team
     await c_manager.send_message_to_team(lobby_code,team_shot.id,message)
 
+#Helper method to check if a shot is valid or not
 def is_valid_hit(detected_shape:str, team:Team, lobby_code:str) -> tuple[bool,Team | None]:    
 
     teamA, teamB = l_manager.get_teams_in_lobby(lobby_code)

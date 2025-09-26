@@ -1,3 +1,6 @@
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
+
 import type { Lobby,User } from "../models/User";
 
 //Production API
@@ -26,18 +29,14 @@ interface CreateLobbyResponse{
   teams:any[];
 }
 
-//Leave Team response model
-// interface LeaveTeamResponse{
-//   message: string;
-// }
 
-
+//Lobby service object with methods for lobby related API calls
 export const lobbyService={
 
   //Create Lobby
   async createLobby(maxPlayers:number):Promise<CreateLobbyResponse|null>{
     try {
-      console.log(API);
+      //console.log(API);
       const res=await fetch(`${API}/CreateLobby/${maxPlayers}`,{
         method:"POST",
       });

@@ -1,3 +1,6 @@
+//Welcome Galane:2024671386
+//Phiwokwakhe Khathwane: 2022004325
+
 import type { User } from "../models/User";
 
 //Websocket message model
@@ -12,11 +15,12 @@ const wsUrl = import.meta.env.VITE_WS_URL;
 //Local websocket
 //const wsUrl = "ws://127.0.0.1:8000";
 
-//Websocket class
+//Websocket class to manage WebSocket connections for real-time game communication
 class WebSocketService {
   private socket: WebSocket | null = null;
   //An event halder for the messages that can be changes
   private messageHandler: (msg: GameMessage) => void = () => {};
+
   //Connect to the websocket
   connect(
     lobbyCode: string,
@@ -24,18 +28,21 @@ class WebSocketService {
     userId: number,
     onMessage: (msg: GameMessage) => void
   ) {
+    
     //If the connection has already been established, we shold stop the creation of a new one.
     if (this.socket) {
       return;
     }
-    console.log(wsUrl);
+
+    //Initialize websocket with lobby, team and user details
     this.socket = new WebSocket(`${wsUrl}/ws/${lobbyCode}/${teamId}/${userId}`);
 
+    //Handle websocket connection opening
     this.socket.onopen = () => {
     };
     this.messageHandler = onMessage;
 
-    //Lets parse the websocket message
+    //Parse the websocket message
     this.socket.onmessage = (event) => {
       try {
 
@@ -68,6 +75,7 @@ class WebSocketService {
     this.messageHandler = onMessage;
   }
   
+  //Check if websocket connection is active
   isConnected() {
   return this.socket && this.socket.readyState === WebSocket.OPEN;
 }
@@ -76,6 +84,7 @@ class WebSocketService {
   sendShot(image: string, player: User, color: string) {
   if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
 
+  //Shot data object
   const shotData = {
     image: image,
     player: {
@@ -87,7 +96,7 @@ class WebSocketService {
     color: color
   };
 
-  
+  //Send the shot object
   try {
     this.socket.send(JSON.stringify(shotData));
   } catch (error) {

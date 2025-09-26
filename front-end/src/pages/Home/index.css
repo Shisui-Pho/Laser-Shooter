@@ -1,3 +1,7 @@
+/*Welcome Galane:2024671386
+Phiwokwakhe Khathwane: 2022004325*/
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,6 +10,8 @@
 .form-container {
   @apply flex min-h-screen items-center justify-center bg-zinc-950 p-4 font-mono text-zinc-200;
 }
+
+/* Styles for a full-screen black background, used as a fallback or hack */
 .hack-black-background {
   position: fixed; 
   top: 0;
@@ -31,42 +37,52 @@
   }
 }
 
+/* Styles for the form title */
 .form-title {
   @apply mb-6 border-b-2 border-neon-green-500 pb-2 text-center text-xl font-bold uppercase text-neon-green-400 sm:text-2xl;
 }
 
+/* Styles for the title accent, a decorative element above the form */
 .title-accent {
   @apply absolute left-1/2 top-0 h-4 w-12 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-neon-green-500 shadow-glow-green;
 }
 
+/* Styles for input group containers */
 .input-group {
   @apply mb-6;
 }
 
+/* Styles for input labels */
 .input-label {
   @apply mb-2 block text-sm uppercase tracking-widest text-zinc-400;
 }
 
+/* Styles for text input fields */
 .input-field {
   @apply w-full rounded-md border-2 border-zinc-700 bg-zinc-800 p-3 text-neon-green-400 placeholder-zinc-500 transition-all duration-300 focus:border-neon-red-500 focus:outline-none focus:ring-2 focus:ring-neon-red-500;
 }
 
+/* Styles for select dropdown fields */
 .select-field {
   @apply w-full appearance-none rounded-md border-2 border-zinc-700 bg-zinc-800 p-3 text-neon-green-400 transition-all duration-300 focus:border-neon-red-500 focus:outline-none focus:ring-2 focus:ring-neon-red-500;
 }
 
+/* Styles for player option in select dropdown */
 .option-player {
   @apply bg-zinc-900 text-neon-green-400;
 }
 
+/* Styles for spectator option in select dropdown */
 .option-spectator {
   @apply bg-zinc-900 text-neon-red-400;
 }
 
+/* Styles for the submit button */
 .submit-button {
   @apply w-full rounded-lg bg-neon-green-500 py-3 font-bold uppercase tracking-widest text-zinc-950 shadow-glow-green transition-all duration-300 hover:bg-neon-green-400 focus:outline-none focus:ring-4 focus:ring-neon-green-500/50;
 }
 
+/* Styles for the bottom accent bar, a decorative element at the form's base */
 .bottom-accent-bar {
   @apply absolute bottom-0 left-0 right-0 h-2 -translate-y-1/2 transform bg-neon-red-500 opacity-20;
 }
