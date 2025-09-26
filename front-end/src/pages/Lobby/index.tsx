@@ -22,7 +22,6 @@ const Index: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { addError } = useError();
   const navigate = useNavigate();
-  let nums: number = 0;
 
   //Method to fetch lobby details from backend
   const fetchLobbyDetails = async (lobbyCode: string) => {
@@ -32,10 +31,9 @@ const Index: React.FC = () => {
        details = await lobbyService.getLobbyDetails(lobbyCode);
     }
 
-    //Poll when the game status is over
+    //Poll when the game status is not game_over
     if (details?.game_status != "game_over"){
       const details = await lobbyService.getLobbyDetails(lobbyCode);
-      nums+= 1;
       setLobbyDetails(details);
       return;
     }
