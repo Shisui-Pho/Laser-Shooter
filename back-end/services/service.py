@@ -5,8 +5,8 @@ import random
 from models import Lobby, Player, Team
 
 #Predefined colors and shapes
-colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
-shapes = ['circle', 'square', 'triangle', 'rectangle']
+colors = ['blue','green']
+shapes = ['triangle']
 
 #Predefined HSV(Hue Saturation and Value) color ranges used for masking images to detect the shape
 # - Each colour has a lower bound HSV and an upper bound HSV
@@ -69,6 +69,7 @@ def decode_json(data):
     player = Player(**data.get("player"))
     color = data.get("color")
     color_range = color_ranges.get(color)
+    print(color)
     return image_data, player, color_range
 
 #API response body for lobby details
