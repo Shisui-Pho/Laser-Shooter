@@ -44,7 +44,7 @@ html, body {
 
 /* Styles for HUD elements positioned in the top-right corner */
 .top-right {
-  @apply right-4 top-4;
+  @apply right-4 top-24;
 }
 
 /* Styles for HUD elements positioned in the top-center */
