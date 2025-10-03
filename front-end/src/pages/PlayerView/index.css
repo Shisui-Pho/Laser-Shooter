@@ -39,7 +39,7 @@ html, body {
 
 /* Styles for HUD elements positioned in the top-left corner */
 .top-left {
-  @apply left-4 top-4;
+  @apply left-4 top-24;
 }
 
 /* Styles for HUD elements positioned in the top-right corner */
