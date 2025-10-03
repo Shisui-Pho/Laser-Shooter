@@ -33,7 +33,7 @@ function Index() {
   const [reloadProgress, setReloadProgress] = useState<number>(0);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const { addError } = useError();
-
+  const [lobbyDet, setLobbyDet] = useState<Lobby | null>();
   // Reference for the status message timeout
   const statusTimeoutRef = useRef<number | null>(null);
   
@@ -131,8 +131,6 @@ function Index() {
   }, [user?.teamId, lobby?.code, lobby?.teams, lobby?.colors, lobby?.shape]);
 
   //Store lobby details
-  let lobbyDetails: Lobby | null = lobby;
-
   //Handle messages from websocket
   async function handleGameMessage (msg: GameMessage) {
    switch (msg.type) {
@@ -156,9 +154,8 @@ function Index() {
      if (msg.payload?.winning_team_name) {
       updateStatus(`Game Over!\nWinner: ${msg.payload.winning_team_name}`);
       setIsGameOver(true);
-      if(lobby){
-        lobbyDetails = await lobbyService.getLobbyDetails(lobby?.code)
-      }
+
+      setLobbyDet(await lobbyService.getLobbyDetails(lobby?.code?? ""))
      }
      setIsGameOver(true);
      break;
@@ -306,10 +303,10 @@ function Index() {
      </button>
     </div>
      {/* Game Over Overlay for Spectators */}
-    {isGameOver && lobbyDetails && (
-      <GameOver 
-        lobbyDetails={lobbyDetails} user={user}
-      />
+    {isGameOver && lobbyDet && (
+          <GameOver 
+            lobbyDetails={lobbyDet} user={user}
+          />
     )}
    </div>
   );
